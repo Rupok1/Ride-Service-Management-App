@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Ride</string>
+    <string-array name="type">
+        <item>Driver</item>
+        <item>Traveller</item>
+    </string-array>
 </resources>
