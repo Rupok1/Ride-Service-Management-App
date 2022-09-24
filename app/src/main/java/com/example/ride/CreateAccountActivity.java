@@ -15,9 +15,14 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
@@ -26,13 +31,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class CreateAccountActivity extends AppCompatActivity {
 
     String type;
-    EditText nameEdit,emailEdit,nidEdit,dopEdit,addrEdit,phone;
+    EditText nameEdit,emailEdit,nidEdit,dopEdit,addrEdit,phone,passEdit;
     Button createBtn;
-    FirebaseFirestore firestore;
+    TextView signIn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +77,15 @@ public class CreateAccountActivity extends AppCompatActivity {
         createBtn = findViewById(R.id.createBtn);
         addrEdit = findViewById(R.id.addressId);
         phone = findViewById(R.id.phone);
+        passEdit = findViewById(R.id.signUppassword);
+        signIn = findViewById(R.id.signInText);
+        signIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(CreateAccountActivity.this,SignInActivity.class));
+                finish();
+            }
+        });
 
 //        createBtn.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -108,11 +123,6 @@ public class CreateAccountActivity extends AppCompatActivity {
 
 
 
-
-       firestore = FirebaseFirestore.getInstance();
-
-
-
         createBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,6 +131,7 @@ public class CreateAccountActivity extends AppCompatActivity {
                 String email = emailEdit.getText().toString().trim();
                 String nid = nidEdit.getText().toString().trim();
                 String p_no = phone.getText().toString().trim();
+                String pass = passEdit.getText().toString().trim();
 
 
                 String dob;
@@ -171,31 +182,28 @@ public class CreateAccountActivity extends AppCompatActivity {
                     addrEdit.requestFocus();
                     return;
                 }
+                if(pass.isEmpty() && pass.length()<6)
+                {
+                    passEdit.setError("Required!");
+                    passEdit.requestFocus();
+                    return;
+                }
+
+
+                Intent intent = new Intent(CreateAccountActivity.this,OtpVerficationActivity.class);
+                intent.putExtra("number", "+88"+p_no);
+                intent.putExtra("email", email);
+                intent.putExtra("name", name);
+                intent.putExtra("nid", nid);
+                intent.putExtra("type", type);
+                intent.putExtra("dob", dob);
+                intent.putExtra("addr", addr);
+                intent.putExtra("pass", pass);
+                startActivity(intent);
 
 
 
-                DocumentReference documentReference = firestore.collection("Users").document(p_no);
-                Map<String,Object>user = new HashMap<>();
 
-                user.put("name",name);
-                user.put("email",email);
-                user.put("phone",p_no);
-                user.put("nid",nid);
-                user.put("type",type);
-                user.put("dob",dob);
-                user.put("addr",addr);
-
-                String finalP_no = p_no;
-                documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Toast.makeText(CreateAccountActivity.this, "data saved", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(CreateAccountActivity.this,OtpVerficationActivity.class);
-                        intent.putExtra("number", "+88"+p_no);
-                        startActivity(intent);
-
-                    }
-                });
 
             }
         });

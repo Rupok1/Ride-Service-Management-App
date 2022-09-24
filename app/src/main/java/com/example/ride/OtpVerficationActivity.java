@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskExecutors;
 import com.google.firebase.FirebaseException;
@@ -21,7 +22,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class OtpVerficationActivity extends AppCompatActivity {
@@ -29,6 +34,8 @@ public class OtpVerficationActivity extends AppCompatActivity {
     private String verificationId;
     private FirebaseAuth fAuth;
     ProgressBar progressBar;
+    String email,pass;
+    FirebaseFirestore firestore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,13 +43,20 @@ public class OtpVerficationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_otp_verfication);
 
         String phoneNumber = getIntent().getStringExtra("number");
-        fAuth = FirebaseAuth.getInstance();
+        email = getIntent().getStringExtra("email");
+        pass = getIntent().getStringExtra("pass");
+
 
         EditText code = findViewById(R.id.code);
         Button confirmBtn = findViewById(R.id.confirmBtn);
         progressBar = findViewById(R.id.progressBar);
 
         sendVerificationCode(phoneNumber);
+
+
+        fAuth = FirebaseAuth.getInstance();
+        firestore = FirebaseFirestore.getInstance();
+
 
         confirmBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,10 +94,56 @@ public class OtpVerficationActivity extends AppCompatActivity {
 
                         if(task.isSuccessful())
                         {
-                            Intent intent = new Intent(OtpVerficationActivity.this,MainActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                            finish();
+
+                            fAuth.createUserWithEmailAndPassword(email,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+
+                                    if(task.isSuccessful())
+                                    {
+                                        String userId = fAuth.getCurrentUser().getEmail();
+
+                                        DocumentReference documentReference = firestore.collection("users").document(userId);
+                                        Map<String,Object> user = new HashMap<>();
+
+                                        user.put("name",getIntent().getStringExtra("name"));
+                                        user.put("email",getIntent().getStringExtra("email"));
+                                        user.put("phone",getIntent().getStringExtra("number"));
+                                        user.put("nid",getIntent().getStringExtra("nid"));
+                                        user.put("type",getIntent().getStringExtra("type"));
+                                        user.put("dob",getIntent().getStringExtra("dob"));
+                                        user.put("addr",getIntent().getStringExtra("addr"));
+
+
+
+                                        documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+
+                                                fAuth.signInWithEmailAndPassword(email,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<AuthResult> task) {
+
+                                                        Intent intent = new Intent(OtpVerficationActivity.this,MainActivity.class);
+                                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                        startActivity(intent);
+                                                        finish();
+
+                                                    }
+                                                });
+
+                                                Toast.makeText(OtpVerficationActivity.this, "data saved & user created", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+
+                                    }
+
+                                }
+                            });
+
+
+
+
 
                         }
                         else

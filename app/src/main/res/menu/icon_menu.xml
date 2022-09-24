@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/menu_home"
+        android:title="Home"/>
+    <item android:id="@+id/history"
+        android:title="History"/>
+    <item android:id="@+id/payment"
+        android:title="Payment &amp; Billings"/>
+    <item android:id="@+id/per_info"
+        android:title="Personal Info"/>
+    <item android:id="@+id/logout"
+        android:title="Logout"/>
+</menu>

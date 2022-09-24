@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 
 import com.google.android.material.tabs.TabLayout;
@@ -26,6 +28,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     Button nxtBtn;
     int position = 0;
     FirebaseAuth firebaseAuth;
+    Animation btnAnim;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +49,12 @@ public class SplashScreenActivity extends AppCompatActivity {
 
         tabLayout = findViewById(R.id.tabLayout);
         nxtBtn = findViewById(R.id.confirmBtn);
+        btnAnim = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.btn_anim);
 
         List<ScreenItem> mList = new ArrayList<>();
-        mList.add(new ScreenItem("Lorem Ipsum is simply dummy text of the printing and typesetting industry."));
-        mList.add(new ScreenItem("Lorem Ipsum is simply dummy text of the printing and typesetting industry."));
-        mList.add(new ScreenItem("Lorem Ipsum is simply dummy text of the printing and typesetting industry."));
+        mList.add(new ScreenItem("Ride","Find affordable, fast and safe rides"));
+        mList.add(new ScreenItem("Ride Anywhere","you can use this app to look for nearby rides to reach\n your destination"));
+        mList.add(new ScreenItem("Ride now","Lorem Ipsum is simply dummy text of the printing and typesetting industry."));
 
         screenPager = findViewById(R.id.viewPager);
         viewPagerAdapter = new ViewPagerAdapter(this,mList);
@@ -71,7 +75,8 @@ public class SplashScreenActivity extends AppCompatActivity {
 
                 if(position == mList.size()-1)
                 {
-                   nxtBtn.setText("Get Started");
+                    loadLastScreen();
+
                 }
                 if(position == mList.size())
                 {
@@ -103,6 +108,12 @@ public class SplashScreenActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void loadLastScreen() {
+
+        nxtBtn.setText("Get Started");
+        nxtBtn.setAnimation(btnAnim);
     }
 
     private boolean restorePrefData() {

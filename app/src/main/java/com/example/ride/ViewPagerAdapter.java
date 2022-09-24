@@ -30,7 +30,10 @@ public class ViewPagerAdapter extends PagerAdapter {
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View layoutScreen = inflater.inflate(R.layout.layout_screen,null);
 
+
+        TextView title = layoutScreen.findViewById(R.id.titleId);
         TextView desc = layoutScreen.findViewById(R.id.desc);
+        title.setText(mListScreen.get(position).getTitle());
         desc.setText(mListScreen.get(position).getDescription());
 
         container.addView(layoutScreen);

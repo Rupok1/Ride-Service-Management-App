@@ -39,10 +39,11 @@
     <Button
         android:id="@+id/confirmBtn"
         android:layout_width="200dp"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:layout_marginBottom="496dp"
         android:backgroundTint="#321E6B"
         android:text="Confirm"
+        android:textSize="18sp"
         android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
