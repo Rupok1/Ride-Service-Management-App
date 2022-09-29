@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 android {
@@ -26,6 +27,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    buildFeatures {
+        viewBinding true
+    }
 
 }
 
@@ -44,4 +48,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.gms:play-services-location:17.0.0'
     implementation 'com.karumi:dexter:6.2.1'
+
+    implementation 'com.firebase:geofire-android:3.2.0'
+    implementation 'com.firebase:geofire-android-common:3.2.0'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.25'
+
 }

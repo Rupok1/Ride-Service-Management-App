@@ -21,6 +21,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -92,8 +95,8 @@ public class SignInActivity extends AppCompatActivity {
         });
         if(mAuth.getCurrentUser()!=null)
         {
-            startActivity(new Intent(SignInActivity.this,MainActivity.class));
-            finish();
+           startActivity(new Intent(SignInActivity.this,HomeActivity.class));
+           finish();
         }
 
 
@@ -123,8 +126,8 @@ public class SignInActivity extends AppCompatActivity {
 
                         if(task.isSuccessful())
                         {
-                            startActivity(new Intent(SignInActivity.this,MainActivity.class));
-                            finish();
+                          startActivity(new Intent(SignInActivity.this,HomeActivity.class));
+                          finish();
                         }
                         else
                         {
@@ -143,6 +146,29 @@ public class SignInActivity extends AppCompatActivity {
 
 
     }
+//    private void check_user() {
+//
+//        FirebaseFirestore fstore = FirebaseFirestore.getInstance();
+//        DocumentReference documentReference = fstore.collection("users").document(mAuth.getCurrentUser().getEmail());
+//        documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//            @Override
+//            public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                if (documentSnapshot.exists()) {
+//
+//
+//                    if (documentSnapshot.getString("type").equals("Traveller")) {
+//                       startActivity(new Intent(SignInActivity.this,CustomerMapActivity.class));
+//                        finish();
+//                    } else if (documentSnapshot.getString("type").equals("Driver")) {
+//                        startActivity(new Intent(SignInActivity.this, DriverMapsActivity.class));
+//                        finish();
+//
+//                    }
+//                }
+//            }
+//        });
+//
+//    }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {

@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -124,10 +125,8 @@ public class OtpVerficationActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onComplete(@NonNull Task<AuthResult> task) {
 
-                                                        Intent intent = new Intent(OtpVerficationActivity.this,MainActivity.class);
-                                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                                        startActivity(intent);
-                                                        finish();
+                                                     startActivity(new Intent(OtpVerficationActivity.this,HomeActivity.class));
+                                                     finish();
 
                                                     }
                                                 });
@@ -154,6 +153,31 @@ public class OtpVerficationActivity extends AppCompatActivity {
                 });
 
     }
+//    private void check_user() {
+//
+//        FirebaseFirestore fstore = FirebaseFirestore.getInstance();
+//        DocumentReference documentReference = fstore.collection("users").document(fAuth.getCurrentUser().getEmail());
+//        documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//            @Override
+//            public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                if (documentSnapshot.exists()) {
+//
+//
+//                    if (documentSnapshot.getString("type").equals("Traveller")) {
+//                        startActivity(new Intent(OtpVerficationActivity.this,CustomerMapActivity.class));
+//                       finish();
+//                    } else if (documentSnapshot.getString("type").equals("Driver")) {
+//
+//                        Intent intent = new Intent(OtpVerficationActivity.this, DriverMapsActivity.class);
+//                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                        startActivity(intent);
+//                        finish();
+//                    }
+//                }
+//            }
+//        });
+//
+//    }
 
     private void sendVerificationCode(String number)
     {

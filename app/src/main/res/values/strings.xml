@@ -6,4 +6,5 @@
     </string-array>
     <string name="open">Open</string>
     <string name="close">Close</string>
+    <string name="title_activity_driver_maps">DriverMapsActivity</string>
 </resources>
