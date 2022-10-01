@@ -4,12 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -32,15 +36,15 @@ public class SignInActivity extends AppCompatActivity {
     Button loginBtn;
     FirebaseAuth mAuth;
 
+    Dialog dialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setTitle("Login");
         setContentView(R.layout.activity_sign_in);
 
         mAuth = FirebaseAuth.getInstance();
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         emailEdit = findViewById(R.id.loginEmail);
         passwordEdit = findViewById(R.id.loginPassword);
         forgotPass = findViewById(R.id.forgotPass);
@@ -104,7 +108,7 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                 String email = emailEdit.getText().toString();
+                String email = emailEdit.getText().toString();
                 String pass = passwordEdit.getText().toString();
 
                 if(TextUtils.isEmpty(email))
@@ -126,8 +130,19 @@ public class SignInActivity extends AppCompatActivity {
 
                         if(task.isSuccessful())
                         {
-                          startActivity(new Intent(SignInActivity.this,HomeActivity.class));
-                          finish();
+                            dialog = new Dialog(SignInActivity.this);
+
+                            dialog.setContentView(R.layout.loader);
+
+                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                            {
+                                dialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.loader_dialog));
+                            }
+                            dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+                            dialog.setCancelable(false);
+                            dialog.show();
+                            check_user();
+
                         }
                         else
                         {
@@ -146,36 +161,40 @@ public class SignInActivity extends AppCompatActivity {
 
 
     }
-//    private void check_user() {
-//
-//        FirebaseFirestore fstore = FirebaseFirestore.getInstance();
-//        DocumentReference documentReference = fstore.collection("users").document(mAuth.getCurrentUser().getEmail());
-//        documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//            @Override
-//            public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                if (documentSnapshot.exists()) {
-//
-//
-//                    if (documentSnapshot.getString("type").equals("Traveller")) {
-//                       startActivity(new Intent(SignInActivity.this,CustomerMapActivity.class));
-//                        finish();
-//                    } else if (documentSnapshot.getString("type").equals("Driver")) {
-//                        startActivity(new Intent(SignInActivity.this, DriverMapsActivity.class));
-//                        finish();
-//
-//                    }
-//                }
-//            }
-//        });
-//
-//    }
+    private void check_user() {
+
+       FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+       FirebaseFirestore fstore = FirebaseFirestore.getInstance();
+
+        DocumentReference documentReference = fstore.collection("users").document(firebaseAuth.getCurrentUser().getEmail());
+        documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+
+
+
+                    if (documentSnapshot.getString("type").equals("Traveller")) {
+                        dialog.dismiss();
+                        startActivity(new Intent(SignInActivity.this,CustomerMapActivity.class));
+                        finish();
+
+                    } else if (documentSnapshot.getString("type").equals("Driver")) {
+                        dialog.dismiss();
+                        startActivity(new Intent(SignInActivity.this, DriverMapsActivity.class));
+                        finish();
+
+                    }
+                }
+            }
+        });
+
+    }
+
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId() == android.R.id.home)
-        {
-            this.finish();
-        }
-        return super.onOptionsItemSelected(item);
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }

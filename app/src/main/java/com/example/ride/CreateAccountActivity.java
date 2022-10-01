@@ -203,8 +203,6 @@ public class CreateAccountActivity extends AppCompatActivity {
 
 
 
-
-
             }
         });
 
@@ -214,8 +212,16 @@ public class CreateAccountActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == android.R.id.home)
         {
-            this.finish();
+            startActivity(new Intent(CreateAccountActivity.this,SignInActivity.class));
+            finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(CreateAccountActivity.this,SignInActivity.class));
+        finish();
     }
 }

@@ -40,6 +40,9 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAYFABukIvSUz_P6JE8LyuUgjy8dgZdPQU" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
 
         <activity
             android:name=".DriverMapsActivity"
@@ -62,7 +65,9 @@
         -->
         <activity
             android:name=".SignInActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.Ride2"
+            />
         <activity
             android:name=".CreateAccountActivity"
             android:exported="false" />

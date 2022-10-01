@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -26,6 +27,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +56,27 @@ public class SplashScreenActivity extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
         fstore = FirebaseFirestore.getInstance();
+                    Dexter.withContext(getApplicationContext())
+                    .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                    .withListener(new PermissionListener() {
+                        @Override
+                        public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
+
+                        }
+
+                        @Override
+                        public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
+
+                            Toast.makeText(SplashScreenActivity.this, "Have to give location permission", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+
+                            permissionToken.continuePermissionRequest();
+
+                        }
+                    }).check();
 
         if (restorePrefData() && firebaseAuth.getCurrentUser() == null) {
             startActivity(new Intent(getApplicationContext(), SignInActivity.class));
@@ -148,27 +176,6 @@ public class SplashScreenActivity extends AppCompatActivity {
         }
     }
 
-//    private void check_user() {
-//
-//        DocumentReference documentReference = fstore.collection("users").document(firebaseAuth.getCurrentUser().getEmail());
-//        documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//            @Override
-//            public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                if (documentSnapshot.exists()) {
-//
-//
-//                    if (documentSnapshot.getString("type").equals("Traveller")) {
-//                        startActivity(new Intent(SplashScreenActivity.this,CustomerMapActivity.class));
-//                        finish();
-//                    } else if (documentSnapshot.getString("type").equals("Driver")) {
-//                        startActivity(new Intent(SplashScreenActivity.this, DriverMapsActivity.class));
-//                        finish();
-//
-//                    }
-//                }
-//            }
-//        });
-//
-//    }
+
 
 }
