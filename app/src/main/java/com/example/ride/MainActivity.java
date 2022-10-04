@@ -60,7 +60,7 @@ import com.karumi.dexter.listener.single.PermissionListener;
 
 public class MainActivity extends AppCompatActivity {
 
-    NavigationView navigationView;
+
     ActionBarDrawerToggle toggle;
     DrawerLayout drawerLayout;
     FirebaseAuth mAuth;
@@ -164,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
                                         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("DriversAvailable");
                                         GeoFire geoFire = new GeoFire(ref);
                                         geoFire.removeLocation(userId);
+
                                         mAuth.signOut();
                                         startActivity(new Intent(MainActivity.this,SignInActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                                         overridePendingTransition(0,0);

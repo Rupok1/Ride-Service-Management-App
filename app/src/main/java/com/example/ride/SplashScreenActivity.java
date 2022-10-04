@@ -46,7 +46,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     int position = 0;
     FirebaseAuth firebaseAuth;
     Animation btnAnim;
-    FirebaseFirestore fstore;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +55,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         firebaseAuth = FirebaseAuth.getInstance();
-        fstore = FirebaseFirestore.getInstance();
+
                     Dexter.withContext(getApplicationContext())
                     .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                     .withListener(new PermissionListener() {
