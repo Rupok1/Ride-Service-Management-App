@@ -159,7 +159,6 @@ public class SignInActivity extends AppCompatActivity {
 
 
 
-
     }
     private void check_user() {
 
@@ -171,7 +170,6 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
-
 
 
                     if (documentSnapshot.getString("type").equals("Traveller")) {
