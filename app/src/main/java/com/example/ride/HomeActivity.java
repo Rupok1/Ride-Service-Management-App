@@ -2,7 +2,6 @@ package com.example.ride;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Build;
@@ -10,23 +9,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.single.PermissionListener;
 
 public class HomeActivity extends AppCompatActivity {
 
-    Button driver;
+    Button letsGo;
     FirebaseAuth firebaseAuth;
     FirebaseFirestore fstore;
     Dialog dialog;
@@ -35,12 +27,12 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        driver = findViewById(R.id.driverBtn);
+        letsGo = findViewById(R.id.letsGoBtn);
 
         firebaseAuth = FirebaseAuth.getInstance();
         fstore = FirebaseFirestore.getInstance();
 
-        driver.setOnClickListener(new View.OnClickListener() {
+        letsGo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog = new Dialog(HomeActivity.this);

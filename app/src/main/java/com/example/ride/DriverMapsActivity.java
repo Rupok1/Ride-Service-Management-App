@@ -13,9 +13,13 @@ import android.location.LocationListener;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.common.ConnectionResult;
@@ -27,7 +31,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.ride.databinding.ActivityDriverMapsBinding;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,10 +53,11 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
     GoogleApiClient googleApiClient;
     Location lastLocation;
     LocationRequest locationRequest;
-    SupportMapFragment smf;
-    FusedLocationProviderClient client;
     FirebaseAuth mAuth;
     private String customerId = "";
+    private LinearLayout customerInfo;
+    private ImageView customerImage;
+    private TextView cName,cPhone,customerDestination;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +72,12 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
         mapFragment.getMapAsync(this);
 
         mAuth = FirebaseAuth.getInstance();
+
+        customerInfo = findViewById(R.id.customerInfo);
+        customerImage = findViewById(R.id.customerImage);
+        cName = findViewById(R.id.customerName);
+        cPhone = findViewById(R.id.customerPhone);
+        customerDestination = findViewById(R.id.destinationId);
         
         getAssignedCustomer();
 
@@ -73,7 +86,7 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
 
     private void getAssignedCustomer() {
         String driverId = FirebaseAuth.getInstance().getUid();
-        DatabaseReference assignedCustomerRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverId).child("customerRideId");
+        DatabaseReference assignedCustomerRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverId).child("customerRequest").child("customerRideId");
         assignedCustomerRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -82,6 +95,26 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
                 {
                     customerId = snapshot.getValue().toString();
                     getAssignedCustomerPickUpLocation();
+                    getAssignedCustomerDestination();
+                    getAssignedCustomerInfo();
+                }
+                else
+                {
+                    customerId = "";
+                    if(pickUpMarker !=null)
+                    {
+                        pickUpMarker.remove();
+                    }
+                    if (assignedCustomerPickUpLocationRefListener != null)
+                    {
+                        assignedCustomerPickUpLocationRef.removeEventListener(assignedCustomerPickUpLocationRefListener);
+                    }
+                    customerInfo.setVisibility(View.GONE);
+                    cName.setText("");
+                    cPhone.setText("");
+                    customerDestination.setText("Destination: --");
+                    customerImage.setImageResource(R.drawable.undraw_male_avatar_323b);
+
                 }
             }
 
@@ -94,14 +127,81 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
 
     }
 
-    private void getAssignedCustomerPickUpLocation() {
+    private void getAssignedCustomerDestination() {
         String driverId = FirebaseAuth.getInstance().getUid();
-        DatabaseReference assignedCustomerPickUpLocationRef = FirebaseDatabase.getInstance().getReference().child("CustomerRequest").child(customerId).child("l");
-        assignedCustomerPickUpLocationRef.addValueEventListener(new ValueEventListener() {
+        DatabaseReference assignedCustomerRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverId).child("customerRequest").child("destination");
+        assignedCustomerRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                 if(snapshot.exists())
+                {
+                    String destination = snapshot.getValue().toString();
+                    customerDestination.setText("Destination: "+destination);
+                }
+                else
+                {
+                    customerDestination.setText("Destination: ");
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void getAssignedCustomerInfo() {
+        customerInfo.setVisibility(View.VISIBLE);
+       DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child("Customers").child(customerId);
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists() && snapshot.getChildrenCount()>0)
+                {
+                    Map<String, Object>map = (Map<String, Object>) snapshot.getValue();
+
+                    if(map.get("name")!=null)
+                    {
+                        cName.setText("Name: "+map.get("name").toString());
+                    }
+                    if(map.get("phone")!=null)
+                    {
+                        cPhone.setText("Mobile: "+map.get("phone").toString());
+                    }
+                    if(map.get("profileImageUrl")!=null)
+                    {
+                        Glide.with(DriverMapsActivity.this)
+                                .load(map.get("profileImageUrl").toString())
+                                .into(customerImage);
+
+                    }
+
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    Marker pickUpMarker;
+   private DatabaseReference assignedCustomerPickUpLocationRef;
+   private ValueEventListener assignedCustomerPickUpLocationRefListener;
+    private void getAssignedCustomerPickUpLocation() {
+
+        assignedCustomerPickUpLocationRef = FirebaseDatabase.getInstance().getReference().child("CustomerRequest").child(customerId).child("l");
+        assignedCustomerPickUpLocationRefListener = assignedCustomerPickUpLocationRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if(snapshot.exists() && !customerId.equals(""))
                 {
                    List<Object>map = (List<Object>) snapshot.getValue();
                     double locationLat = 0;
@@ -117,7 +217,7 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
                     }
                     LatLng driverLatLng = new LatLng(locationLat,locationLng);
 
-                   mMap.addMarker(new MarkerOptions().position(driverLatLng).title("PickUp Location"));
+                  pickUpMarker = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("PickUp Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.person_pin_circle)));
                 }
             }
 

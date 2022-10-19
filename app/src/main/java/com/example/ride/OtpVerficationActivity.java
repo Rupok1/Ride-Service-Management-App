@@ -208,7 +208,7 @@ public class OtpVerficationActivity extends AppCompatActivity {
             if(code!=null)
             {
                 progressBar.setVisibility(View.VISIBLE);
-                verifyCode(code);
+//                verifyCode(code);
 
             }
 

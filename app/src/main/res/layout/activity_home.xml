@@ -20,7 +20,7 @@
         app:srcCompat="@drawable/logo1" />
 
     <Button
-        android:id="@+id/driverBtn"
+        android:id="@+id/letsGoBtn"
         android:layout_width="300dp"
         android:layout_height="50dp"
         android:text="LEt's Go"
@@ -40,7 +40,7 @@
         android:textColor="#321E6B"
         android:textSize="30sp"
         android:fontFamily="@font/poppins"
-        app:layout_constraintBottom_toTopOf="@+id/driverBtn"
+        app:layout_constraintBottom_toTopOf="@+id/letsGoBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"

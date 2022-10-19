@@ -97,6 +97,7 @@ public class SignInActivity extends AppCompatActivity {
                 passResetDiag.create().show();
             }
         });
+
         if(mAuth.getCurrentUser()!=null)
         {
            startActivity(new Intent(SignInActivity.this,HomeActivity.class));

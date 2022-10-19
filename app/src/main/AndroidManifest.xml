@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.ride">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -18,10 +17,17 @@
         android:theme="@style/Theme.Ride"
         tools:targetApi="31">
         <activity
+            android:name=".CustomerPersonalInfoActivity"
+            android:theme="@style/Theme.Ride2"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".HomeActivity"
             android:exported="false"
-            android:theme="@style/Theme.Ride2"
-            />
+            android:theme="@style/Theme.Ride2" />
         <activity
             android:name=".CustomerMapActivity"
             android:exported="false"
@@ -66,8 +72,7 @@
         <activity
             android:name=".SignInActivity"
             android:exported="false"
-            android:theme="@style/Theme.Ride2"
-            />
+            android:theme="@style/Theme.Ride2" />
         <activity
             android:name=".CreateAccountActivity"
             android:exported="false" />

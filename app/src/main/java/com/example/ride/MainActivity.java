@@ -26,6 +26,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -57,6 +58,10 @@ import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
+
+import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -100,13 +105,16 @@ public class MainActivity extends AppCompatActivity {
                     TextView name = navigationView.findViewById(R.id.username);
                     TextView type = navigationView.findViewById(R.id.prof_type);
                     TextView email = navigationView.findViewById(R.id.email);
+                    CircleImageView image = navigationView.findViewById(R.id.nav_image);
 
                     name.setText(documentSnapshot.getString("name"));
                     type.setText(documentSnapshot.getString("type"));
                     email.setText(documentSnapshot.getString("email"));
 
+
                     if(documentSnapshot.getString("type").equals("Traveller"))
                     {
+                        loadImage(image);
                         call_a_car.setVisibility(View.VISIBLE);
 
                         Toast.makeText(MainActivity.this, "Traveller", Toast.LENGTH_SHORT).show();
@@ -119,6 +127,12 @@ public class MainActivity extends AppCompatActivity {
                                 {
                                     case R.id.menu_home:
                                         startActivity(new Intent(MainActivity.this,CustomerMapActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                                        overridePendingTransition(0,0);
+                                        break;
+                                    case R.id.per_info:
+                                        Intent intent = new Intent(MainActivity.this,CustomerPersonalInfoActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                        intent.putExtra("mobile",documentSnapshot.getString("phone"));
+                                        startActivity(intent);
                                         overridePendingTransition(0,0);
                                         break;
                                     case R.id.logout:
@@ -185,6 +199,42 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+    private void loadImage(CircleImageView image)
+    {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child("Customers").child(mAuth.getCurrentUser().getUid());
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+
+                if(snapshot.exists())
+                {
+                    Map<String, Object> map = (Map<String, Object>) snapshot.getValue();
+                    if(map.get("profileImageUrl")!=null)
+                    {
+                        String profileImgUrl = map.get("profileImageUrl").toString();
+                        Glide.with(MainActivity.this)
+                                .load(profileImgUrl)
+                                .into(image);
+
+                    }
+
+                }
+                else
+                {
+                    return;
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
     //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
