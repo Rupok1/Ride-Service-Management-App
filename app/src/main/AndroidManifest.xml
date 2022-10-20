@@ -17,9 +17,16 @@
         android:theme="@style/Theme.Ride"
         tools:targetApi="31">
         <activity
-            android:name=".CustomerPersonalInfoActivity"
-            android:theme="@style/Theme.Ride2"
+            android:name=".DriverProfileActivity"
             android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".CustomerPersonalInfoActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Ride2">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -52,10 +59,6 @@
 
         <activity
             android:name=".DriverMapsActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Ride2" />
-        <activity
-            android:name=".DriverPersonalInfoActivity"
             android:exported="false"
             android:theme="@style/Theme.Ride2" />
         <!--

@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     else if(documentSnapshot.getString("type").equals("Driver"))
                     {
+                        loadImageForDriver(image);
                         aSwitch.setVisibility(View.VISIBLE);
                         call_a_car.setVisibility(View.GONE);
                       //  Toast.makeText(MainActivity.this, "Driver", Toast.LENGTH_SHORT).show();
@@ -169,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                                         overridePendingTransition(0,0);
                                         break;
                                     case R.id.per_info:
-                                        startActivity(new Intent(MainActivity.this,DriverPersonalInfoActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                                        startActivity(new Intent(MainActivity.this,DriverProfileActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                                         overridePendingTransition(0,0);
                                         break;
 
@@ -198,6 +199,41 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+    private void loadImageForDriver(CircleImageView image)
+    {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(mAuth.getCurrentUser().getUid());
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+
+                if(snapshot.exists())
+                {
+                    Map<String, Object> map = (Map<String, Object>) snapshot.getValue();
+                    if(map.get("profileImageUrl")!=null)
+                    {
+                        String profileImgUrl = map.get("profileImageUrl").toString();
+                        Glide.with(MainActivity.this)
+                                .load(profileImgUrl)
+                                .into(image);
+
+                    }
+
+                }
+                else
+                {
+                    return;
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
     private void loadImage(CircleImageView image)
     {
