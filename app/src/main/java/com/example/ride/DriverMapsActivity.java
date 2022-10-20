@@ -59,6 +59,7 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
     private ImageView customerImage;
     private TextView cName,cPhone,customerDestination;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

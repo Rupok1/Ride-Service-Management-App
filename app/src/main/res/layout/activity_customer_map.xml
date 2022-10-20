@@ -26,6 +26,61 @@
       </androidx.cardview.widget.CardView>
 
     </RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/driverInfo"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:background="@color/white"
+        android:visibility="gone"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        >
+        <ImageView
+            android:id="@+id/driverImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/undraw_male_avatar_323b"
+            android:scaleType="centerCrop"
+            />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="40sp"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/destinationId"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:text="Destination: --"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/driverName"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/driverPhone"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/carType"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
 
 
 </FrameLayout>
