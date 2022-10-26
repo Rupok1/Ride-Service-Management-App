@@ -14,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,10 +51,11 @@ public class DriverProfileActivity extends MainActivity {
     Button save;
     DatabaseReference databaseReference;
     String userId;
-    String cName,ccartype,cMobile,cPhone,profileImgUrl;
+    String cName,ccartype,cMobile,cPhone,profileImgUrl,service;
     CircleImageView imageView;
     private Uri resUri;
     Dialog dialog;
+    private RadioGroup radioGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +69,7 @@ public class DriverProfileActivity extends MainActivity {
         mobile = findViewById(R.id.driverMobileNo);
         save = findViewById(R.id.saveBtn2);
         imageView = findViewById(R.id.driverProfileImage);
+        radioGroup = findViewById(R.id.radioGroup);
 
         userId = firebaseAuth.getCurrentUser().getUid();
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(userId);
@@ -104,10 +108,24 @@ public class DriverProfileActivity extends MainActivity {
     }
 
     private void saveUserInfo() {
+
+        int selectedId = radioGroup.getCheckedRadioButtonId();
+
+        RadioButton radioButton = findViewById(selectedId);
+
+        if(radioButton.getText() == null)
+        {
+            return;
+        }
+        service = radioButton.getText().toString();
+
         Map userInfo = new HashMap();
         userInfo.put("name",name.getText().toString());
         userInfo.put("cartype",cartype.getText().toString());
         userInfo.put("phone",cPhone);
+        userInfo.put("service",service);
+
+
         databaseReference.updateChildren(userInfo);
         if(resUri != null)
         {
@@ -199,10 +217,28 @@ public class DriverProfileActivity extends MainActivity {
                         cPhone = cMobile;
                         mobile.setText("Mobile: "+cMobile);
                     }
+                    if(map.get("service")!=null)
+                    {
+                        service = map.get("service").toString();
+//                        Toast.makeText(DriverProfileActivity.this,service,Toast.LENGTH_SHORT).show();
+//                        cartype.setText(service);
+                        switch (service)
+                        {
+                            case "RideX":
+                                radioGroup.check(R.id.rideX);
+                                break;
+                            case "RideBlack":
+                                radioGroup.check(R.id.rideBlack);
+                                break;
+                            case "RideXL":
+                                radioGroup.check(R.id.rideXL);
+                                break;
+                        }
+                    }
                     if(map.get("profileImageUrl")!=null)
                     {
                         profileImgUrl = map.get("profileImageUrl").toString();
-                        Glide.with(DriverProfileActivity.this)
+                        Glide.with(getApplicationContext())
                                 .load(profileImgUrl)
                                 .into(imageView);
 

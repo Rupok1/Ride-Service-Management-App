@@ -65,6 +65,32 @@
             android:textSize="16sp"
             android:hint="Car Type"
             />
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/radioGroup"
+            android:orientation="horizontal"
+            android:gravity="center"
+            >
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RideX"
+                android:id="@+id/rideX"
+                />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RideBlack"
+                android:id="@+id/rideBlack"
+                />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RideXL"
+                android:id="@+id/rideXL"
+                />
+        </RadioGroup>
 
         <TextView
             android:id="@+id/driverMobileNo"

@@ -70,8 +70,8 @@ public class MainActivity extends AppCompatActivity {
     DrawerLayout drawerLayout;
     FirebaseAuth mAuth;
     FirebaseFirestore fstore;
-    Switch aSwitch;
-    Button call_a_car;
+//    Switch aSwitch;
+//    Button call_a_car;
     @Override
     public void setContentView(View view) {
         drawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_main,null);
@@ -81,8 +81,8 @@ public class MainActivity extends AppCompatActivity {
         super.setContentView(drawerLayout);
 
         NavigationView navigationView = drawerLayout.findViewById(R.id.nav_view);
-        aSwitch = findViewById(R.id.switchID);
-        call_a_car = findViewById(R.id.call_A_car);
+//        aSwitch = findViewById(R.id.switchID);
+//        call_a_car = findViewById(R.id.call_A_car);
 
         toggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(toggle);
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                     if(documentSnapshot.getString("type").equals("Traveller"))
                     {
                         loadImage(image);
-                        call_a_car.setVisibility(View.VISIBLE);
+//                       call_a_car.setVisibility(View.VISIBLE);
 
                         Toast.makeText(MainActivity.this, "Traveller", Toast.LENGTH_SHORT).show();
 
@@ -133,6 +133,12 @@ public class MainActivity extends AppCompatActivity {
                                         Intent intent = new Intent(MainActivity.this,CustomerPersonalInfoActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                                         intent.putExtra("mobile",documentSnapshot.getString("phone"));
                                         startActivity(intent);
+                                        overridePendingTransition(0,0);
+                                        break;
+                                    case R.id.history:
+                                        Intent intent2 = new Intent(MainActivity.this,CustomerHistoryActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                        intent2.putExtra("user","Customers");
+                                        startActivity(intent2);
                                         overridePendingTransition(0,0);
                                         break;
                                     case R.id.logout:
@@ -155,8 +161,8 @@ public class MainActivity extends AppCompatActivity {
                     else if(documentSnapshot.getString("type").equals("Driver"))
                     {
                         loadImageForDriver(image);
-                        aSwitch.setVisibility(View.VISIBLE);
-                        call_a_car.setVisibility(View.GONE);
+//                        aSwitch.setVisibility(View.VISIBLE);
+//                        call_a_car.setVisibility(View.GONE);
                       //  Toast.makeText(MainActivity.this, "Driver", Toast.LENGTH_SHORT).show();
                         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
                             @Override
@@ -214,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
                     if(map.get("profileImageUrl")!=null)
                     {
                         String profileImgUrl = map.get("profileImageUrl").toString();
-                        Glide.with(MainActivity.this)
+                        Glide.with(getApplicationContext())
                                 .load(profileImgUrl)
                                 .into(image);
 

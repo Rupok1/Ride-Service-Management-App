@@ -11,8 +11,12 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,12 +74,15 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
     private LatLng pickUpLocation;
     private Boolean requestBol = false;
     private Marker pickUpMarker;
-    String destination;
+    String destination,requestService;
     PlacesClient placesClient;
-    private String Apikey = "AIzaSyAYFABukIvSUz_P6JE8LyuUgjy8dgZdPQU";
+    private String Apikey = "AIzaSyDr3wY3Ek5Fm3snGqeT7sv8I1o3Y3_RJg0";
     LinearLayout driverInfo;
-    TextView driverName,driverPhone,carType,dest;
-    CircleImageView driverImg;
+    TextView driverName,driverPhone,carType;
+    ImageView driverImg;
+    Button call_a_car;
+    private RadioGroup radioGroup;
+    private LatLng destinationLatLng;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,9 +100,14 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
         driverInfo = findViewById(R.id.driverInfo);
         driverName = findViewById(R.id.driverName);
         driverPhone = findViewById(R.id.driverPhone);
-        dest = findViewById(R.id.destinationId);
+        driverImg = findViewById(R.id.driverImage);
         carType = findViewById(R.id.carType);
+        call_a_car = findViewById(R.id.call_A_car);
 
+        radioGroup = findViewById(R.id.radioGroup);
+        radioGroup.check(R.id.rideX);
+
+        destinationLatLng = new LatLng(0.0,0.0);
 
         if(!Places.isInitialized())
         {
@@ -113,38 +125,21 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
 
                 if(requestBol)
                {
-                   call_a_car.setText("Call A Car");
-                   requestBol = false;
-                   geoQuery.removeAllListeners();
-                   driverLocationRef.removeEventListener(driverLocationRefListener);
-
-                   if(driverFoundId != null)
-                   {
-                       DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundId).child("customerRequest");
-                       driverRef.removeValue();
-                       driverFoundId = null;
-                   }
-                   driverFound = false;
-                   radius = 1;
-                   String userId = mAuth.getCurrentUser().getUid();
-                   DatabaseReference reference = FirebaseDatabase.getInstance().getReference("CustomerRequest");
-                   GeoFire geoFire = new GeoFire(reference);
-                   geoFire.removeLocation(userId);
-                   if(pickUpMarker != null && driverMarker!=null)
-                   {
-                       pickUpMarker.remove();
-                       driverMarker.remove();
-                       driverMarker.setIcon(null);
-                   }
-                   driverInfo.setVisibility(View.GONE);
-                   driverName.setText("");
-                   driverPhone.setText("");
-                   dest.setText("Destination: --");
-                   driverImg.setImageResource(R.drawable.undraw_male_avatar_323b);
+                   endRide();
 
                }
                else
                {
+                   int selectedId = radioGroup.getCheckedRadioButtonId();
+
+                   RadioButton radioButton = findViewById(selectedId);
+
+                   if(radioButton.getText() == null)
+                   {
+                       return;
+                   }
+                   requestService = radioButton.getText().toString();
+
                    requestBol = true;
                    call_a_car.setText("Cancel Request");
                    String userId = mAuth.getCurrentUser().getUid();
@@ -177,18 +172,20 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
                 new LatLng(-33.880490,151.184363)
         ));
         autocompleteFragment.setCountry("BD");
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.LAT_LNG));
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull Place place) {
                 destination = place.getName().toString();
+                destinationLatLng = place.getLatLng();
                 // TODO: Get info about the selected place.
             }
 
 
             @Override
             public void onError(@NonNull Status status) {
+                Toast.makeText(CustomerMapActivity.this,""+status,Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -216,19 +213,51 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
 
                 if(!driverFound && requestBol)
                 {
-                    driverFound = true;
-                    driverFoundId = key;
-                    DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundId).child("customerRequest");
-                    String customerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                    HashMap map =new HashMap();
-                    map.put("customerRideId",customerId);
-                    map.put("destination",destination);
-                    driverRef.updateChildren(map);
-                    Toast.makeText(CustomerMapActivity.this, "Found driver", Toast.LENGTH_SHORT).show();
-                    getDriverLocation();
-                    getDriverInfo();
-                 //   call_a_car.setText("Looking for driver Location...");
-                    Toast.makeText(CustomerMapActivity.this, "Found Driver & Looking for driver Location...", Toast.LENGTH_SHORT).show();
+                    DatabaseReference customerDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(key);
+                    customerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot.exists() && snapshot.getChildrenCount() > 0)
+                            {
+                                Map<String, Object> driverMap = (Map<String, Object>) snapshot.getValue();
+
+                                if(driverFound)
+                                {
+                                    return;
+                                }
+                                if(driverMap.get("service").equals(requestService))
+                                {
+                                    driverFound = true;
+                                    driverFoundId = snapshot.getKey();
+                                    DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundId).child("customerRequest");
+                                    String customerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                                    HashMap map =new HashMap();
+                                    map.put("customerRideId",customerId);
+                                    Toast.makeText(CustomerMapActivity.this,""+destinationLatLng,Toast.LENGTH_SHORT).show();
+                                    map.put("destinationLat",destinationLatLng.latitude);
+                                    Toast.makeText(CustomerMapActivity.this,""+destinationLatLng.latitude,Toast.LENGTH_SHORT).show();
+                                    map.put("destinationLng",destinationLatLng.longitude);
+                                    map.put("destination",destination);
+                                    driverRef.updateChildren(map);
+                                    Toast.makeText(CustomerMapActivity.this, "Found driver", Toast.LENGTH_SHORT).show();
+                                    getDriverLocation();
+                                    getDriverInfo();
+                                    getHasRideEnded();
+                                    //   call_a_car.setText("Looking for driver Location...");
+                                    Toast.makeText(CustomerMapActivity.this, "Found Driver & Looking for driver Location...", Toast.LENGTH_SHORT).show();
+                                }
+
+
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
+
                 }
 
 
@@ -373,6 +402,66 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
 
     }
 
+    private DatabaseReference driveHasEndRef;
+    private ValueEventListener driveHasEndRefListener;
+    private void getHasRideEnded() {
+
+
+        driveHasEndRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundId).child("customerRequest").child("customerRideId");
+        driveHasEndRefListener =  driveHasEndRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if(snapshot.exists())
+                {
+
+                }
+                else
+                {
+                    endRide();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+    }
+
+    private void endRide() {
+
+        call_a_car.setText("Call A Car");
+        requestBol = false;
+        geoQuery.removeAllListeners();
+        driverLocationRef.removeEventListener(driverLocationRefListener);
+        driveHasEndRef.removeEventListener(driveHasEndRefListener);
+        if(driverFoundId != null)
+        {
+            DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundId).child("customerRequest");
+            driverRef.removeValue();
+            driverFoundId = null;
+        }
+        driverFound = false;
+        radius = 1;
+        String userId = mAuth.getCurrentUser().getUid();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("CustomerRequest");
+        GeoFire geoFire = new GeoFire(reference);
+        geoFire.removeLocation(userId);
+        if(pickUpMarker != null && driverMarker!=null)
+        {
+            pickUpMarker.remove();
+            driverMarker.remove();
+            mMap.addMarker(null);
+        }
+        driverInfo.setVisibility(View.GONE);
+        driverName.setText("");
+        driverPhone.setText("");
+        driverImg.setImageResource(R.drawable.undraw_male_avatar_323b);
+    }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -416,7 +505,10 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
         lastLocation = location;
         LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.setMinZoomPreference(6.0f);
+        mMap.setMaxZoomPreference(20.0f);
         mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
+
 
 //        String userId = mAuth.getCurrentUser().getUid();
 //        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Customer");

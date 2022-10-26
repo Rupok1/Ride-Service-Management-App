@@ -1,42 +1,33 @@
 {
   "project_info": {
-    "project_number": "9021385716",
-    "firebase_url": "https://ride-4363f-default-rtdb.firebaseio.com",
-    "project_id": "ride-4363f",
-    "storage_bucket": "ride-4363f.appspot.com"
+    "project_number": "339235744533",
+    "project_id": "ride-84aa0",
+    "storage_bucket": "ride-84aa0.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:9021385716:android:0c95d338e828846197e7a1",
+        "mobilesdk_app_id": "1:339235744533:android:3a33725e46f868e07e171c",
         "android_client_info": {
           "package_name": "com.example.ride"
         }
       },
       "oauth_client": [
         {
-          "client_id": "9021385716-p1ji5nkijgjeirg0k8k6f7d4rk1h0fdg.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.ride",
-            "certificate_hash": "2684c20297e4cfb8a63820779273f0016dc81f0f"
-          }
-        },
-        {
-          "client_id": "9021385716-n72jff5lum5jkhmpiu2cjkmk6rhuif3n.apps.googleusercontent.com",
+          "client_id": "339235744533-85k95l952ocrouce60gflpq31bge4qjr.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAu7I-R2mWn689-fXFTT1KGGAyXKSQPc_k"
+          "current_key": "AIzaSyAI-ryQLMqTgNe7U9xuX64EHZUqLg7WK1o"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "9021385716-n72jff5lum5jkhmpiu2cjkmk6rhuif3n.apps.googleusercontent.com",
+              "client_id": "339235744533-85k95l952ocrouce60gflpq31bge4qjr.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
