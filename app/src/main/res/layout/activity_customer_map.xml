@@ -38,12 +38,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/driverInfo"
+            android:padding="10dp"
             android:visibility="gone"
             android:layout_gravity="bottom"
             android:orientation="horizontal"
             android:background="@color/white"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+
             >
             <ImageView
                 android:id="@+id/driverImage"
@@ -51,6 +51,7 @@
                 android:layout_height="100dp"
                 android:src="@drawable/undraw_male_avatar_323b"
                 android:scaleType="centerCrop"
+                android:layout_gravity="center"
                 />
             <LinearLayout
                 android:layout_width="match_parent"
@@ -77,6 +78,21 @@
                     android:id="@+id/carType"
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="10dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/price"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    />
+                <RatingBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/ratingBar"
+                    android:layout_gravity="center"
+                    android:numStars="5"
+                    android:stepSize="0.1"
+                    />
 
             </LinearLayout>
 

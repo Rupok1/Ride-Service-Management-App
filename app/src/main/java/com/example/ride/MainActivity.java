@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         fstore = FirebaseFirestore.getInstance();
 
+        startService(new Intent(MainActivity.this,onAppKilled.class));
 
         String userId = mAuth.getCurrentUser().getEmail();
         Toast.makeText(this, "" + userId, Toast.LENGTH_SHORT).show();
@@ -255,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
                     if(map.get("profileImageUrl")!=null)
                     {
                         String profileImgUrl = map.get("profileImageUrl").toString();
-                        Glide.with(MainActivity.this)
+                        Glide.with(getApplicationContext())
                                 .load(profileImgUrl)
                                 .into(image);
 

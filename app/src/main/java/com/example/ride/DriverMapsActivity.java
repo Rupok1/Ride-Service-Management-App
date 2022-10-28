@@ -74,6 +74,7 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
     private Button rideStatus;
     private int status = 0;
     private LatLng destinationLatLng;
+    private float rideDistance;
 
 
 
@@ -99,6 +100,21 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
         customerDestination = findViewById(R.id.destinationId);
         aSwitch = findViewById(R.id.switchID);
         rideStatus = findViewById(R.id.rideStatus);
+
+        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked)
+                {
+                    connectDriver();
+                }
+                else
+                {
+                    disconnectDriver();
+                }
+            }
+        });
+
 
         rideStatus.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,6 +155,7 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
         GeoFire geoFire = new GeoFire(reference);
         geoFire.removeLocation(customerId);
         customerId = "";
+        rideDistance = 0;
         if(pickUpMarker != null)
         {
             pickUpMarker.remove();
@@ -200,11 +217,22 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
 
         HashMap map = new HashMap();
         map.put("driver",userId);
-       // Toast.makeText(DriverMapsActivity.this,customerId,Toast.LENGTH_SHORT).show();
         map.put("customer",customerId);
         map.put("rating",0);
+        map.put("destination",destination);
+        map.put("location/from/lat",pickupLatLng.latitude);
+        map.put("location/from/lng",pickupLatLng.longitude);
+        map.put("location/to/lat",destinationLatLng.latitude);
+        map.put("location/to/lng",destinationLatLng.longitude);
+        map.put("rideDistance",rideDistance);
+        map.put("timestamp",getCurrentTimeStamp());
         historyRef.child(requestId).updateChildren(map);
 
+    }
+
+    private Long getCurrentTimeStamp() {
+        Long timeStamp = System.currentTimeMillis()/1000;
+        return timeStamp;
     }
 
     private void getAssignedCustomerDestination() {
@@ -289,6 +317,7 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
     }
 
     Marker pickUpMarker;
+    LatLng pickupLatLng;
    private DatabaseReference assignedCustomerPickUpLocationRef;
    private ValueEventListener assignedCustomerPickUpLocationRefListener;
     private void getAssignedCustomerPickUpLocation() {
@@ -312,7 +341,7 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
                     {
                         locationLng = Double.parseDouble(map.get(1).toString()) ;
                     }
-                    LatLng pickupLatLng = new LatLng(locationLat,locationLng);
+                    pickupLatLng = new LatLng(locationLat,locationLng);
 
                   pickUpMarker = mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("PickUp Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.person_pin_circle)));
                   getRouteToMarker(pickupLatLng);
@@ -379,6 +408,10 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
         {
             if(aSwitch.isChecked() &&  mAuth.getCurrentUser()!=null)
             {
+                if(!customerId.equals(""))
+                {
+                    rideDistance += lastLocation.distanceTo(location)/1000;
+                }
                 lastLocation = location;
                 LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -471,13 +504,9 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
 
 
     }
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        locationRequest = new LocationRequest();
-        locationRequest.setInterval(1000);
-        locationRequest.setFastestInterval(1000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
+    private void connectDriver()
+    {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -491,6 +520,29 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, DriverMapsActivity.this);
     }
 
+    private void disconnectDriver()
+    {
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,this);
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("DriversAvailable");
+
+        GeoFire geoFire = new GeoFire(ref);
+        geoFire.removeLocation(userId);
+
+    }
+
+
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(1000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+
+    }
+
     @Override
     public void onConnectionSuspended(int i) {
 
@@ -501,14 +553,6 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
 
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-//        String userId = mAuth.getCurrentUser().getUid();
-//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("DriversAvailable");
-//        GeoFire geoFire = new GeoFire(ref);
-//        geoFire.removeLocation(userId);
-    }
 
     private List<Polyline> polylines;
     private static final int[] COLORS = new int[]{R.color.gradient_end_color};

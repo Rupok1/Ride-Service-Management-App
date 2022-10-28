@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,11 +79,12 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
     PlacesClient placesClient;
     private String Apikey = "AIzaSyDr3wY3Ek5Fm3snGqeT7sv8I1o3Y3_RJg0";
     LinearLayout driverInfo;
-    TextView driverName,driverPhone,carType;
+    TextView driverName,driverPhone,carType,price;
     ImageView driverImg;
     Button call_a_car;
     private RadioGroup radioGroup;
     private LatLng destinationLatLng;
+    private RatingBar ratingBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,9 +105,12 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
         driverImg = findViewById(R.id.driverImage);
         carType = findViewById(R.id.carType);
         call_a_car = findViewById(R.id.call_A_car);
+        price = findViewById(R.id.price);
 
         radioGroup = findViewById(R.id.radioGroup);
         radioGroup.check(R.id.rideX);
+
+        ratingBar = findViewById(R.id.ratingBar);
 
         destinationLatLng = new LatLng(0.0,0.0);
 
@@ -113,7 +118,6 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
         {
             Places.initialize(getApplicationContext(), Apikey); placesClient = Places.createClient(CustomerMapActivity.this);
         }
-
 
 
 
@@ -326,6 +330,24 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
 
                     }
 
+
+                    int ratingSum = 0;
+                    float ratingTotal = 0;
+                    float ratingAvg = 0;
+                    for(DataSnapshot child:snapshot.child("rating").getChildren())
+                    {
+                        ratingSum = ratingSum + Integer.valueOf(child.getValue().toString());
+                        ratingTotal++;
+                    }
+
+                    if(ratingTotal != 0)
+                    {
+                        ratingAvg = ratingSum/ratingTotal;
+                        ratingBar.setRating(ratingAvg);
+                    }
+
+
+
                 }
 
 
@@ -337,7 +359,7 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
             }
         });
     }
-
+    private float distance = 0;
     private Marker driverMarker;
     private DatabaseReference driverLocationRef;
     private ValueEventListener driverLocationRefListener;
@@ -376,7 +398,11 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
                     local2.setLatitude(driverLatLng.latitude);
                     local2.setLongitude(driverLatLng.longitude);
 
-                    float distance = local.distanceTo(local2);
+                    distance = local.distanceTo(local2);
+
+                    float tPrice = (distance * 12)/1000;
+                    price.setText("Price: "+tPrice + " tk");
+
                     driverMarker = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("Your Driver").icon(BitmapDescriptorFactory.fromResource(R.drawable.transport_taxi)));
                     if(distance<100)
                     {

@@ -7,7 +7,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,8 +31,12 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
+
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -99,7 +105,15 @@ public class CustomerHistoryActivity extends MainActivity {
                 if(snapshot.exists())
                 {
                    String rideId = snapshot.getKey();
-                    History item = new History(rideId);
+                   Long timeStamp = 0L;
+                   for(DataSnapshot child: snapshot.getChildren())
+                   {
+                       if(child.getKey().equals("timestamp"))
+                       {
+                           timeStamp = Long.valueOf(child.getValue().toString());
+                       }
+                   }
+                    History item = new History(rideId,getDate(timeStamp));
                     resultsHistory.add(item);
                     historyAdapter.notifyDataSetChanged();
                 }
@@ -111,6 +125,14 @@ public class CustomerHistoryActivity extends MainActivity {
             }
         });
 
+    }
+    private String getDate(long timestamp) {
+
+        Calendar cal = Calendar.getInstance(Locale.getDefault());
+        cal.setTimeInMillis(timestamp * 1000);
+        String date = DateFormat.format("dd-MM-yyyy hh:mm:ss", cal).toString();
+
+        return date;
     }
 
     private ArrayList resultsHistory = new ArrayList<History>();

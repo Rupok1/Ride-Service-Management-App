@@ -16,5 +16,15 @@
         android:background="@color/tab_indicator_gray"
         android:textColor="#3A3A3A"
         />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/timestampId"
+        android:textSize="16sp"
+        android:text="Time"
+        android:padding="12dp"
+        android:background="@color/tab_indicator_gray"
+        android:textColor="#3A3A3A"
+        />
 
 </LinearLayout>
