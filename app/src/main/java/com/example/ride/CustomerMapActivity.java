@@ -359,7 +359,7 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
             }
         });
     }
-    private float distance = 0;
+    private float distance = 0, dis = 0;
     private Marker driverMarker;
     private DatabaseReference driverLocationRef;
     private ValueEventListener driverLocationRefListener;
@@ -398,9 +398,16 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
                     local2.setLatitude(driverLatLng.latitude);
                     local2.setLongitude(driverLatLng.longitude);
 
-                    distance = local.distanceTo(local2);
 
-                    float tPrice = (distance * 12)/1000;
+                    Location local3 = new Location("");
+                    local3.setLatitude(destinationLatLng.latitude);
+                    local3.setLongitude(destinationLatLng.longitude);
+
+                    distance = local.distanceTo(local2);
+                    dis = local.distanceTo(local3);
+                    Toast.makeText(CustomerMapActivity.this, "Driver distance: "+String.valueOf(dis), Toast.LENGTH_SHORT).show();
+
+                    float tPrice = (dis * 12);
                     price.setText("Price: "+tPrice + " tk");
 
                     driverMarker = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("Your Driver").icon(BitmapDescriptorFactory.fromResource(R.drawable.transport_taxi)));

@@ -112,6 +112,7 @@ public class SignInActivity extends AppCompatActivity {
                 String email = emailEdit.getText().toString();
                 String pass = passwordEdit.getText().toString();
 
+
                 if(TextUtils.isEmpty(email))
                 {
                     emailEdit.setError("Required!");
@@ -183,6 +184,11 @@ public class SignInActivity extends AppCompatActivity {
                         startActivity(new Intent(SignInActivity.this, DriverMapsActivity.class));
                         finish();
 
+                    }
+                    else if (documentSnapshot.getString("type").equals("admin")) {
+                        dialog.dismiss();
+                        startActivity(new Intent(SignInActivity.this, AdminHomeActivity.class));
+                        finish();
                     }
                 }
             }

@@ -117,6 +117,7 @@ public class OtpVerficationActivity extends AppCompatActivity {
 
 
 
+
                                         documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void unused) {

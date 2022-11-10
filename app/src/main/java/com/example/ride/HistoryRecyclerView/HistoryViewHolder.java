@@ -28,8 +28,9 @@ public class HistoryViewHolder extends RecyclerView.ViewHolder implements View.O
         Intent intent  = new Intent(v.getContext(), HistorySingleActivity.class);
         Bundle b = new Bundle();
         b.putString("rideId",rideId.getText().toString());
-       intent.putExtras(b);
-       v.getContext().startActivity(intent);
+        intent.putExtras(b);
+        v.getContext().startActivity(intent);
+
 
     }
 }

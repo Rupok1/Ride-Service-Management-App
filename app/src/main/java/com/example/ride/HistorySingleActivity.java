@@ -49,15 +49,16 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
     private GoogleMap mMap;
     private SupportMapFragment mMapFragment;
     private String rideId,userId,customerId,driverId,userOrDriver;
-    private TextView rideLocation,rideDistance,rideDate,userName,userPhone;
+    private TextView rideLocation,rideDistance,rideCost,rideDate,userName,userPhone;
     private ImageView userImg;
     DatabaseReference historyRideRef;
     private LatLng destinationLatLng,pickUpLatLng;
     private String Apikey = "AIzaSyDr3wY3Ek5Fm3snGqeT7sv8I1o3Y3_RJg0";
     private RatingBar ratingBar;
     private String distance;
-    private Double ridePrice;
+    private int ridePrice;
     private Button pay;
+    private Boolean customerPaid = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,11 +73,13 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
         rideLocation = findViewById(R.id.rideLocation);
         rideDistance = findViewById(R.id.rideDistance);
         rideDate = findViewById(R.id.rideDate);
-        rideLocation = findViewById(R.id.rideLocation);
+        rideCost = findViewById(R.id.rideCost);
+
 
         userName = findViewById(R.id.userName);
         userPhone = findViewById(R.id.userPhone);
         userImg = findViewById(R.id.userImg);
+
 
         ratingBar = findViewById(R.id.ratingBar);
         pay = findViewById(R.id.pay);
@@ -87,7 +90,11 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
 
         getRideInfo();
 
+
+
     }
+
+
 
     private void getRideInfo() {
         historyRideRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -97,6 +104,16 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
                 {
                     for(DataSnapshot child:snapshot.getChildren())
                     {
+                        if(child.getKey().equals("rideDistance"))
+                        {
+                            String p = child.getValue().toString();
+                            ridePrice = (int)(Double.valueOf(p) * 34);
+
+                            rideCost.setText("Cost: "+ridePrice+" tk");
+                            rideDistance.setText("Ride Distance: "+p.substring(0,5)+" m");
+
+                        }
+
                         if(child.getKey().equals("customer"))
                         {
                             customerId = child.getValue().toString();
@@ -107,12 +124,7 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
 
                             }
                         }
-                        if(child.getKey().equals("rideDistance"))
-                        {
-                            distance = child.getValue().toString();
-                            rideDistance.setText(distance.substring(0,Math.min(distance.length(),5))+ " km");
-                            ridePrice = Double.valueOf(distance) * 12;
-                        }
+
                         if(child.getKey().equals("driver"))
                         {
                             driverId = child.getValue().toString();
@@ -120,7 +132,7 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
                             {
                                 userOrDriver = "Customers";
                                 getUserInfo("Drivers",driverId);
-                                displayCustomerRelatedInfo(ridePrice);
+                                displayCustomerRelatedInfo();
 
                             }
                         }
@@ -131,6 +143,10 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
                         if(child.getKey().equals("rating"))
                         {
                             ratingBar.setRating(Integer.valueOf(child.getValue().toString()));
+                        }
+                        if(child.getKey().equals("customerPaid"))
+                        {
+                           customerPaid = true;
                         }
                         if(child.getKey().equals("destination"))
                         {
@@ -155,9 +171,12 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
 
             }
         });
+
+
+
     }
 
-    private void displayCustomerRelatedInfo(Double rPrice) {
+    private void displayCustomerRelatedInfo() {
         ratingBar.setVisibility(View.VISIBLE);
         pay.setVisibility(View.VISIBLE);
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
@@ -168,14 +187,35 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
                 mDriverRatingRef.child(rideId).setValue(rating);
             }
         });
+        if(customerPaid)
+        {
+            pay.setEnabled(false);
+        }
+        else
+        {
+            pay.setEnabled(true);
+        }
+
         pay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(HistorySingleActivity.this,PaymentActivity.class);
-                intent.putExtra("price",rPrice);
-                startActivity(intent);
+
+                if(ridePrice <1)
+                {
+                    Toast.makeText(HistorySingleActivity.this,"Minimum transaction 1 Tk !!",Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Intent intent = new Intent(HistorySingleActivity.this,PaymentActivity.class);
+                    intent.putExtra("rPrice",""+ridePrice);
+                    intent.putExtra("user","Customer");
+                    intent.putExtra("rideId",rideId);
+                    startActivity(intent);
+                }
+
             }
         });
+
     }
 
     private void getUserInfo(String userOrDriver, String userId) {

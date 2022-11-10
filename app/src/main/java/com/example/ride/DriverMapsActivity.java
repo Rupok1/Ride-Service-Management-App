@@ -146,10 +146,12 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
         rideStatus.setText("Picked Customer");
         erasePolylines();
 
-        String userId = mAuth.getCurrentUser().getUid();
-        DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(userId).child("customerRequest");
-        driverRef.removeValue();
-
+        if(mAuth.getCurrentUser() != null)
+        {
+            String userId = mAuth.getCurrentUser().getUid();
+            DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(userId).child("customerRequest");
+            driverRef.removeValue();
+        }
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("CustomerRequest");
         GeoFire geoFire = new GeoFire(reference);
@@ -410,7 +412,7 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
             {
                 if(!customerId.equals(""))
                 {
-                    rideDistance += lastLocation.distanceTo(location)/1000;
+                    rideDistance += lastLocation.distanceTo(location);
                 }
                 lastLocation = location;
                 LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());

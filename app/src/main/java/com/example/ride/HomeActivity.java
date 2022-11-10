@@ -72,6 +72,11 @@ public class HomeActivity extends AppCompatActivity {
                         finish();
 
                     }
+                    else if (documentSnapshot.getString("type").equals("admin")) {
+                        dialog.dismiss();
+                        startActivity(new Intent(HomeActivity.this, AdminHomeActivity.class));
+                        finish();
+                    }
                 }
             }
         });

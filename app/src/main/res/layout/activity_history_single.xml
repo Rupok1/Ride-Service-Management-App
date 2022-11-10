@@ -10,13 +10,13 @@
     >
 
 
-            <fragment
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight=".8"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
-                android:id="@+id/map"
-                />
+        <fragment
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".8"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:id="@+id/map"
+            />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -36,13 +36,6 @@
                 android:textStyle="bold"
                 android:textSize="23sp"
                 android:layout_marginTop="10dp"
-                />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Traveller"
-                android:textAlignment="center"
-                android:textStyle="bold"
                 />
             <LinearLayout
                 android:layout_width="match_parent"
@@ -67,6 +60,7 @@
                     android:text="Distance"
                     android:paddingBottom="5dp"
                     />
+
                 <TextView
                     android:id="@+id/rideCost"
                     android:layout_width="wrap_content"
@@ -79,12 +73,13 @@
                     android:layout_height="wrap_content"
                     android:text="Date" />
             </LinearLayout>
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Driver"
-                android:textAlignment="center"
-                android:textStyle="bold"
+                android:orientation="horizontal"
+                android:minHeight="3dp"
+                android:background="#28C5C5C5"
+
                 />
             <LinearLayout
                 android:layout_width="match_parent"
@@ -138,9 +133,12 @@
                 android:id="@+id/pay"
                 android:padding="10dp"
                 android:visibility="gone"
+                android:enabled="false"
                 />
 
         </LinearLayout>
+
+
 
 
 </LinearLayout>
