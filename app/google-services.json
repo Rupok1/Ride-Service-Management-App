@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "339235744533",
+    "firebase_url": "https://ride-84aa0-default-rtdb.firebaseio.com",
     "project_id": "ride-84aa0",
     "storage_bucket": "ride-84aa0.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "339235744533-gttjhdrrht94ff7ff0c91f31roj3kgbb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ride",
+            "certificate_hash": "1930f8e41dfb00f7be6389e79e2fcc028b2ea99f"
+          }
+        },
         {
           "client_id": "339235744533-85k95l952ocrouce60gflpq31bge4qjr.apps.googleusercontent.com",
           "client_type": 3

@@ -3,13 +3,19 @@ package com.example.ride;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.telephony.SmsManager;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RatingBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,7 +63,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +99,8 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
     private RadioGroup radioGroup;
     private LatLng destinationLatLng;
     private RatingBar ratingBar;
+    SupportMapFragment mapFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +110,7 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
         setContentView(binding.getRoot());
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         mAuth = FirebaseAuth.getInstance();
@@ -106,6 +122,8 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
         carType = findViewById(R.id.carType);
         call_a_car = findViewById(R.id.call_A_car);
         price = findViewById(R.id.price);
+
+
 
         radioGroup = findViewById(R.id.radioGroup);
         radioGroup.check(R.id.rideX);
@@ -149,20 +167,80 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
                    String userId = mAuth.getCurrentUser().getUid();
 
 
-                   DatabaseReference reference = FirebaseDatabase.getInstance().getReference("CustomerRequest");
-                   GeoFire geoFire = new GeoFire(reference);
-                   geoFire.setLocation(userId,new GeoLocation(lastLocation.getLatitude(),lastLocation.getLongitude()));
 
-                   pickUpLocation = new LatLng(lastLocation.getLatitude(),lastLocation.getLongitude());
-                 //  pickUpMarker = mMap.addMarker(new MarkerOptions().position(pickUpLocation).title("Pick Me Up"));
+
+//                   if(!location.isEmpty())
+//                   {
+//                       List<Address>addressList = null;
+//                       Geocoder geocoder = new Geocoder(CustomerMapActivity.this);
+//                       try {
+//                           addressList = geocoder.getFromLocationName(location,1);
+//
+//                       } catch (IOException e) {
+//                           e.printStackTrace();
+//                       }
+//
+//                       Address address = addressList.get(0);
+//                       lastLocation = new Location(String.valueOf(address));
+//                   }
+//                   else
+//                   {
+                       DatabaseReference reference = FirebaseDatabase.getInstance().getReference("CustomerRequest");
+                       GeoFire geoFire = new GeoFire(reference);
+                       geoFire.setLocation(userId,new GeoLocation(lastLocation.getLatitude(),lastLocation.getLongitude()));
+
+                       pickUpLocation = new LatLng(lastLocation.getLatitude(),lastLocation.getLongitude());
+  //                 }
+
+
+                     pickUpMarker = mMap.addMarker(new MarkerOptions().position(pickUpLocation).title("Pick Me Up"));
                    //    call_a_car.setText("Getting Your Driver...");
                    Toast.makeText(CustomerMapActivity.this, "Getting Your Driver...", Toast.LENGTH_SHORT).show();
+//                   yourLocation.setText("");
+//                   searchLocation.setQuery("",false);
                    getClosestDriver();
                }
 
 
             }
         });
+
+//        searchLocation.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//
+//                String location = searchLocation.getQuery().toString();
+//                List<Address>addressList = null;
+//
+//                if(location!=null || !location.equals(""))
+//                {
+//                    Geocoder geocoder = new Geocoder(CustomerMapActivity.this);
+//                    try {
+//                        addressList = geocoder.getFromLocationName(location,1);
+//
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    Address address = addressList.get(0);
+//                    destinationLatLng = new LatLng(address.getLatitude(),address.getLongitude());
+//
+//                    destinationMarker =  mMap.addMarker(new MarkerOptions().position(destinationLatLng).title("Destination"));
+//                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destinationLatLng,17));
+////                    addressList.clear();
+////                    m.remove();
+//                }
+//
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                return false;
+//            }
+//        });
+
+
 
 
         // Initialize the AutocompleteSupportFragment.
@@ -193,6 +271,8 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
 
             }
         });
+
+
 
 
 
@@ -233,6 +313,55 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
                                 {
                                     driverFound = true;
                                     driverFoundId = snapshot.getKey();
+                                    DatabaseReference dRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundId);
+                                    dRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            if(snapshot.exists() && snapshot.getChildrenCount()>0)
+                                            {
+
+                                                Dexter.withContext(CustomerMapActivity.this)
+                                                        .withPermission(Manifest.permission.SEND_SMS)
+                                                        .withListener(new PermissionListener() {
+                                                            @Override public void onPermissionGranted(PermissionGrantedResponse response) {/* ... */}
+                                                            @Override public void onPermissionDenied(PermissionDeniedResponse response) {/* ... */}
+                                                            @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
+                                                        }).check();
+
+                                                Map<String, Object>map = (Map<String, Object>) snapshot.getValue();
+
+                                                String no = null,msg;
+
+                                                if(map.get("phone")!=null)
+                                                {
+                                                    no = map.get("phone").toString();
+                                                    no = no.substring(3,14);
+
+                                                }
+                                                msg = "You have customer request from Ride App. Please check";
+                                                try {
+
+                                                        SmsManager smsManager = SmsManager.getDefault();
+                                                        smsManager.sendTextMessage(no,null,msg,null,null);
+                                                        Toast.makeText(CustomerMapActivity.this,"Driver get your request successfully"+no,Toast.LENGTH_SHORT).show();
+
+                                                }catch (Exception e)
+                                                {
+                                                    Toast.makeText(CustomerMapActivity.this,"Error: "+e,Toast.LENGTH_SHORT).show();
+
+                                                }
+
+
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                        }
+                                    });
+
+
                                     DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundId).child("customerRequest");
                                     String customerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
                                     HashMap map =new HashMap();
@@ -410,7 +539,7 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
                     float tPrice = (dis * 12);
                     price.setText("Price: "+tPrice + " tk");
 
-                    driverMarker = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("Your Driver").icon(BitmapDescriptorFactory.fromResource(R.drawable.transport_taxi)));
+                    driverMarker = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("Your Driver"));
                     if(distance<100)
                     {
 
@@ -487,7 +616,6 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
         {
             pickUpMarker.remove();
             driverMarker.remove();
-            mMap.addMarker(null);
         }
         driverInfo.setVisibility(View.GONE);
         driverName.setText("");
@@ -513,7 +641,43 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
         buildGoogleApiClient();
         mMap.setMyLocationEnabled(true);
 
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setCompassEnabled(true);
+        mMap.getUiSettings().setZoomGesturesEnabled(true);
+        mMap.getUiSettings().setRotateGesturesEnabled(false);
 
+        View zoomControls = mapFragment.getView().findViewById((int)0x1);
+
+        if (zoomControls != null && zoomControls.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
+            // ZoomControl is inside of RelativeLayout
+            RelativeLayout.LayoutParams params_zoom = (RelativeLayout.LayoutParams) zoomControls.getLayoutParams();
+
+            // Align it to - parent top|left
+            params_zoom.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            params_zoom.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+
+            // Update margins, set to 10dp
+            final int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120,
+                    getResources().getDisplayMetrics());
+            params_zoom.setMargins(0, 0, 0, margin);
+
+        }
+        View navigation_control = mapFragment.getView().findViewById((int)0x2);
+
+        if (navigation_control != null && navigation_control.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
+            // ZoomControl is inside of RelativeLayout
+            RelativeLayout.LayoutParams params_zoom = (RelativeLayout.LayoutParams) navigation_control.getLayoutParams();
+
+            // Align it to - parent top|left
+            params_zoom.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            params_zoom.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+
+            // Update margins, set to 10dp
+            final int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50,
+                    getResources().getDisplayMetrics());
+            params_zoom.setMargins(0,0 , 0,margin);
+
+        }
 
 //        // Add a marker in Sydney and move the camera
 //        LatLng sydney = new LatLng(-34, 151);
@@ -537,6 +701,16 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
 
         lastLocation = location;
         LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Current_Location");
+        GeoFire geoFire = new GeoFire(ref);
+        if(mAuth.getCurrentUser() != null)
+        {
+            geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(location.getLatitude(),location.getLongitude()));
+        }
+
+
+
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.setMinZoomPreference(6.0f);
         mMap.setMaxZoomPreference(20.0f);

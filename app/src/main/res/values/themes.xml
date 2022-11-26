@@ -27,7 +27,7 @@
         <!-- Customize your theme here. -->
     </style>
     <style name="animation">
-
         <item name="android:windowEnterAnimation">@anim/btn_anim</item>
     </style>
+
 </resources>

@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -54,6 +55,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        FirebaseApp.initializeApp(SplashScreenActivity.this);
         firebaseAuth = FirebaseAuth.getInstance();
 
                     Dexter.withContext(getApplicationContext())
@@ -93,7 +95,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         List<ScreenItem> mList = new ArrayList<>();
         mList.add(new ScreenItem("Ride", "Find affordable, fast and safe rides"));
         mList.add(new ScreenItem("Ride Anywhere", "you can use this app to look for nearby rides to reach\n your destination"));
-        mList.add(new ScreenItem("Ride now", "Lorem Ipsum is simply dummy text of the printing and typesetting industry."));
+        mList.add(new ScreenItem("Ride now", "Ride with us and Save your valuable time"));
 
         screenPager = findViewById(R.id.viewPager);
         viewPagerAdapter = new ViewPagerAdapter(this, mList);

@@ -2,10 +2,13 @@ package com.example.ride;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.ride.Adapter.CustomerAvailableAdapter;
@@ -20,14 +23,22 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class CustomerManageActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
     DriverAvailable available;
     ArrayList<DriverAvailable>driverAvailables;
+    ArrayList<DriverAvailable>driverUnpaidAvailables;
     DriverAvailableAdapter availableAdapter;
+    CustomerAvailableAdapter customerAvailableAdapter;
+    ArrayList<CustomerAvailable>customerAvailables;
     FirebaseAuth mAuth;
+    SearchView searchView;
+    String unpaid;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,15 +48,42 @@ public class CustomerManageActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.customerListId);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        searchView = findViewById(R.id.searchView);
+
 
         mAuth = FirebaseAuth.getInstance();
 
         String user = getIntent().getStringExtra("user");
+        unpaid = getIntent().getStringExtra("unpaid");
 
-        if(user.equals("Driver"))
+
+
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                filter(newText,user);
+
+                return false;
+            }
+        });
+
+
+
+        if(user.equals("Driver") && unpaid == null)
         {
             getDriverData();
-
+        }
+        else if(user.equals("Driver") && unpaid.equals("unpaid"))
+        {
+            getDriverData2();
         }
         else if(user.equals("Customer"))
         {
@@ -56,8 +94,67 @@ public class CustomerManageActivity extends AppCompatActivity {
 
     }
 
+
+
+    private void filter(String newText,String user) {
+
+        if(user.equals("Driver") && unpaid == null)
+        {
+            ArrayList<DriverAvailable>driverAvailableList = new ArrayList<>();
+            for(DriverAvailable ds: driverAvailables)
+            {
+
+                if(ds.getPhone().contains(newText) || ds.getName().toLowerCase().contains(newText.toLowerCase()))
+                {
+                    driverAvailableList.add(ds);
+
+                }
+
+            }
+
+            availableAdapter.filterList(driverAvailableList);
+
+        }
+        else if(user.equals("Driver") && unpaid.equals("unpaid"))
+        {
+            ArrayList<DriverAvailable>driverAvailableList = new ArrayList<>();
+            for(DriverAvailable ds: driverUnpaidAvailables)
+            {
+
+                if(ds.getPhone().contains(newText) || ds.getName().toLowerCase().contains(newText.toLowerCase()))
+                {
+                    driverAvailableList.add(ds);
+
+                }
+
+            }
+
+            availableAdapter.filterList(driverAvailableList);
+
+        }
+        else if(user.equals("Customer"))
+        {
+            ArrayList<CustomerAvailable>customerList = new ArrayList<>();
+            for(CustomerAvailable ds: customerAvailables)
+            {
+
+                if(ds.getPhone().contains(newText))
+                {
+                    customerList.add(ds);
+
+                }
+            }
+
+            customerAvailableAdapter.filterList(customerList);
+
+        }
+
+
+    }
+
+
     private void getCustomerData() {
-        ArrayList<CustomerAvailable>customerAvailables = new ArrayList<>();
+        customerAvailables = new ArrayList<>();
 
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
@@ -76,16 +173,10 @@ public class CustomerManageActivity extends AppCompatActivity {
                         CustomerAvailable available = new CustomerAvailable(ds.child("name").getValue().toString(),ds.child("phone").getValue().toString(),ds.child("profileImageUrl").getValue().toString());
                         customerAvailables.add(available);
 
-                        CustomerAvailableAdapter availableAdapter = new CustomerAvailableAdapter(CustomerManageActivity.this,customerAvailables, new CustomerAvailableAdapter.ItemClickListener(){
-                            @Override
-                            public void onItemClick(CustomerAvailable user) {
 
-
-
-                            }
-                        });
-                        recyclerView.setAdapter(availableAdapter);
-                        availableAdapter.notifyDataSetChanged();
+                        customerAvailableAdapter = new CustomerAvailableAdapter(CustomerManageActivity.this, customerAvailables);
+                        recyclerView.setAdapter(customerAvailableAdapter);
+                        customerAvailableAdapter.notifyDataSetChanged();
 
 
                     }
@@ -102,7 +193,135 @@ public class CustomerManageActivity extends AppCompatActivity {
         });
 
     }
+    private int p=0,q=0;
 
+    private void getDriverData2() {
+
+        driverUnpaidAvailables = new ArrayList<>();
+
+
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+
+        DatabaseReference databaseReference = firebaseDatabase.getReference("Users").child("Drivers");
+
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists())
+                {
+                    for(DataSnapshot ds : snapshot.getChildren())
+                    {
+                        String key = ds.getKey();
+                        x=0;
+                        y=0;
+
+
+
+                        DatabaseReference databaseReference1 = firebaseDatabase.getReference().child("History");
+
+                        databaseReference1.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if(snapshot.exists())
+                                {
+                                    for(DataSnapshot ps: snapshot.getChildren())
+                                    {
+                                        if(ps.child("driver").getValue().toString().equals(key) && ps.child("customerPaid").getValue() != null && ps.child("driverPaidOut").getValue() == null)
+                                        {
+
+                                            if (ps.child("customerPaid").getValue() != null)
+                                            {
+                                                if (ps.child("rideDistance").getValue() !=null) {
+                                                    String  distance = ps.child("rideDistance").getValue().toString();
+                                                    int ridePrice = (int)(Double.valueOf(distance) * 34);
+                                                    p += ridePrice;
+
+                                                }
+                                            }
+                                            if (ps.child("customerPaid").getValue() != null && ps.child("driverPaidOut").getValue() == null)
+                                            {
+                                                if (ps.child("rideDistance").getValue() !=null) {
+                                                    String  distance = ps.child("rideDistance").getValue().toString();
+                                                    int ridePrice = (int)(Double.valueOf(distance) * 34);
+                                                    q += ridePrice;
+                                                }
+                                            }
+
+
+                                            int ratingSum = 0;
+                                            float ratingTotal = 0;
+                                            float ratingAvg = 0;
+                                            if(ds.child("rating")!=null)
+                                            {
+                                                for(DataSnapshot ds2:ds.child("rating").getChildren())
+                                                {
+                                                    ratingSum = ratingSum + Integer.valueOf(ds2.getValue().toString());
+                                                    ratingTotal++;
+                                                }
+
+                                                if(ratingTotal != 0)
+                                                {
+                                                    ratingAvg = ratingSum/ratingTotal;
+                                                }
+
+                                            }
+
+                                            if(ds.child("profileImageUrl") == null)
+                                            {
+
+                                            }
+
+
+                                            available = new DriverAvailable(ds.child("name").getValue().toString(),ds.child("phone").getValue().toString(),ds.child("cartype").getValue().toString(),String.valueOf(ratingAvg).substring(0,3),ds.child("service").getValue().toString(),ds.child("profileImageUrl").getValue().toString(),""+p,""+q);
+
+                                            Toast.makeText(CustomerManageActivity.this,ds.child("cartype").getValue().toString(),Toast.LENGTH_SHORT).show();
+                                            driverUnpaidAvailables.add(available);
+
+                                            availableAdapter = new DriverAvailableAdapter(CustomerManageActivity.this,driverUnpaidAvailables);
+                                            recyclerView.setAdapter(availableAdapter);
+                                            availableAdapter.notifyDataSetChanged();
+
+
+
+                                        }
+                                        else {
+                                            p=0;
+                                            q=0;
+                                        }
+
+                                    }
+
+
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+
+
+
+
+                    }
+
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+
+    }
+
+    private int x=0,y=0;
 
     private void getDriverData() {
 
@@ -120,39 +339,94 @@ public class CustomerManageActivity extends AppCompatActivity {
                 {
                     for(DataSnapshot ds : snapshot.getChildren())
                     {
-
-                        int ratingSum = 0;
-                        float ratingTotal = 0;
-                        float ratingAvg = 0;
-                        if(ds.child("rating")!=null)
-                        {
-                            for(DataSnapshot ds2:ds.child("rating").getChildren())
-                            {
-                                ratingSum = ratingSum + Integer.valueOf(ds2.getValue().toString());
-                                ratingTotal++;
-                            }
-
-                            if(ratingTotal != 0)
-                            {
-                                ratingAvg = ratingSum/ratingTotal;
-                            }
-
-                        }
-
-                        if(ds.child("profileImageUrl") == null)
-                        {
-
-                        }
+                                String key = ds.getKey();
+                                x=0;
+                                y=0;
 
 
-                        available = new DriverAvailable(ds.child("name").getValue().toString(),ds.child("phone").getValue().toString(),ds.child("cartype").getValue().toString(),String.valueOf(ratingAvg).substring(0,3),ds.child("service").getValue().toString(),ds.child("profileImageUrl").getValue().toString());
 
-                        Toast.makeText(CustomerManageActivity.this,ds.child("cartype").getValue().toString(),Toast.LENGTH_SHORT).show();
-                        driverAvailables.add(available);
+                                DatabaseReference databaseReference1 = firebaseDatabase.getReference().child("History");
 
-                        availableAdapter = new DriverAvailableAdapter(CustomerManageActivity.this,driverAvailables);
-                        recyclerView.setAdapter(availableAdapter);
-                        availableAdapter.notifyDataSetChanged();
+                                databaseReference1.addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        if(snapshot.exists())
+                                        {
+                                            for(DataSnapshot ds: snapshot.getChildren())
+                                            {
+                                                if(ds.child("driver").getValue().toString().equals(key))
+                                                {
+
+                                                    if (ds.child("customerPaid").getValue() != null)
+                                                    {
+                                                        if (ds.child("rideDistance").getValue() !=null) {
+                                                            String  distance = ds.child("rideDistance").getValue().toString();
+                                                            int ridePrice = (int)(Double.valueOf(distance) * 34);
+                                                            x += ridePrice;
+                                                            Toast.makeText(CustomerManageActivity.this,"hi: "+x,Toast.LENGTH_SHORT).show();
+
+                                                        }
+                                                    }
+                                                    if (ds.child("customerPaid").getValue() != null && ds.child("driverPaidOut").getValue() == null)
+                                                    {
+                                                        if (ds.child("rideDistance").getValue() !=null) {
+                                                            String  distance = ds.child("rideDistance").getValue().toString();
+                                                            int ridePrice = (int)(Double.valueOf(distance) * 34);
+                                                            y += ridePrice;
+                                                        }
+                                                    }
+
+
+                                                }
+                                                else {
+                                                    x=0;
+                                                    y=0;
+                                                }
+                                            }
+                                            int ratingSum = 0;
+                                            float ratingTotal = 0;
+                                            float ratingAvg = 0;
+                                            if(ds.child("rating")!=null)
+                                            {
+                                                for(DataSnapshot ds2:ds.child("rating").getChildren())
+                                                {
+                                                    ratingSum = ratingSum + Integer.valueOf(ds2.getValue().toString());
+                                                    ratingTotal++;
+                                                }
+
+                                                if(ratingTotal != 0)
+                                                {
+                                                    ratingAvg = ratingSum/ratingTotal;
+                                                }
+
+                                            }
+
+                                            if(ds.child("profileImageUrl") == null)
+                                            {
+
+                                            }
+
+
+                                            available = new DriverAvailable(ds.child("name").getValue().toString(),ds.child("phone").getValue().toString(),ds.child("cartype").getValue().toString(),String.valueOf(ratingAvg).substring(0,3),ds.child("service").getValue().toString(),ds.child("profileImageUrl").getValue().toString(),""+x,""+y);
+
+                                            Toast.makeText(CustomerManageActivity.this,ds.child("cartype").getValue().toString(),Toast.LENGTH_SHORT).show();
+                                            driverAvailables.add(available);
+
+                                            availableAdapter = new DriverAvailableAdapter(CustomerManageActivity.this,driverAvailables);
+                                            recyclerView.setAdapter(availableAdapter);
+                                            availableAdapter.notifyDataSetChanged();
+
+
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                    }
+                                });
+
+
 
 
                     }

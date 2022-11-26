@@ -2,15 +2,17 @@ package com.example.ride.Model;
 
 public class DriverAvailable {
 
-    String name,phone,cartype,rating,serivce,profileImageUrl;
+    String name,phone,cartype,rating,serivce,profileImageUrl,earned,unpaid;
 
-    public DriverAvailable(String name, String phone, String cartype, String rating, String serivce, String profileImageUrl) {
+    public DriverAvailable(String name, String phone, String cartype, String rating, String serivce, String profileImageUrl, String earned, String unpaid) {
         this.name = name;
         this.phone = phone;
         this.cartype = cartype;
         this.rating = rating;
         this.serivce = serivce;
         this.profileImageUrl = profileImageUrl;
+        this.earned = earned;
+        this.unpaid = unpaid;
     }
 
     public String getName() {
@@ -59,5 +61,21 @@ public class DriverAvailable {
 
     public void setProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public String getEarned() {
+        return earned;
+    }
+
+    public void setEarned(String earned) {
+        this.earned = earned;
+    }
+
+    public String getUnpaid() {
+        return unpaid;
+    }
+
+    public void setUnpaid(String unpaid) {
+        this.unpaid = unpaid;
     }
 }

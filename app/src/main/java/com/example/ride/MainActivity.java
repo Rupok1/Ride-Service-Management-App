@@ -1,15 +1,30 @@
 package com.example.ride;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.ContactsContract;
+import android.telephony.SmsManager;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +41,14 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -34,10 +56,13 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MainActivity extends AppCompatActivity {
 
 
+    private static final int RESULT_PICK = 1;
     ActionBarDrawerToggle toggle;
     DrawerLayout drawerLayout;
     FirebaseAuth mAuth;
     FirebaseFirestore fstore;
+
+
 //    Switch aSwitch;
 //    Button call_a_car;
     @Override
@@ -98,6 +123,15 @@ public class MainActivity extends AppCompatActivity {
                                         startActivity(new Intent(MainActivity.this,CustomerMapActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                                         overridePendingTransition(0,0);
                                         break;
+                                    case R.id.sos:
+
+                                           Intent intent3 = new Intent(MainActivity.this,SOSActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                           intent3.putExtra("user","Customer");
+                                           startActivity(intent3);
+                                           overridePendingTransition(0,0);
+
+                                        break;
+
                                     case R.id.per_info:
                                         Intent intent = new Intent(MainActivity.this,CustomerPersonalInfoActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                                         intent.putExtra("mobile",documentSnapshot.getString("phone"));
@@ -150,6 +184,14 @@ public class MainActivity extends AppCompatActivity {
                                         startActivity(intent2);
                                         overridePendingTransition(0,0);
                                         break;
+                                    case R.id.sos:
+
+                                        Intent intent3 = new Intent(MainActivity.this,SOSActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                        intent3.putExtra("user","Driver");
+                                        startActivity(intent3);
+                                        overridePendingTransition(0,0);
+                                        break;
+
                                     case R.id.per_info:
                                         startActivity(new Intent(MainActivity.this,DriverProfileActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                                         overridePendingTransition(0,0);
@@ -181,6 +223,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
+
+
+
+
     private void loadImageForDriver(CircleImageView image)
     {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(mAuth.getCurrentUser().getUid());

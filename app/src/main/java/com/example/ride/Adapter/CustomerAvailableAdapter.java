@@ -26,12 +26,10 @@ public class CustomerAvailableAdapter extends RecyclerView.Adapter<CustomerAvail
 
     Context context;
     ArrayList<CustomerAvailable>userArrayList;
-    private ItemClickListener itemClickListener;
 
-    public CustomerAvailableAdapter(Context context, ArrayList<CustomerAvailable> userArrayList,ItemClickListener itemClickListener) {
+    public CustomerAvailableAdapter(Context context, ArrayList<CustomerAvailable> userArrayList) {
         this.context = context;
         this.userArrayList = userArrayList;
-        this.itemClickListener = itemClickListener;
     }
 
     @NonNull
@@ -55,17 +53,9 @@ public class CustomerAvailableAdapter extends RecyclerView.Adapter<CustomerAvail
         Glide.with(context)
                 .load(profileImgUrl)
                 .into(holder.customerImg);
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-              itemClickListener.onItemClick(userArrayList.get(position));
-            }
-        });
 
     }
-    public interface ItemClickListener{
-        void onItemClick(CustomerAvailable user);
-    }
+
     @Override
     public int getItemCount() {
         return userArrayList.size();
@@ -84,6 +74,11 @@ public class CustomerAvailableAdapter extends RecyclerView.Adapter<CustomerAvail
 
 
         }
+    }
+    public void filterList(ArrayList<CustomerAvailable> filterArrayList)
+    {
+        userArrayList = filterArrayList;
+        notifyDataSetChanged();
     }
 
 }

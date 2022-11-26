@@ -11,11 +11,13 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,6 +77,7 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
     private int status = 0;
     private LatLng destinationLatLng;
     private float rideDistance;
+    private SupportMapFragment mapFragment;
 
 
 
@@ -86,7 +89,7 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
         setContentView(binding.getRoot());
         polylines = new ArrayList<>();
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
@@ -386,6 +389,43 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
         buildGoogleApiClient();
         mMap.setMyLocationEnabled(true);
 
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setCompassEnabled(true);
+        mMap.getUiSettings().setZoomGesturesEnabled(true);
+        mMap.getUiSettings().setRotateGesturesEnabled(false);
+
+        View zoomControls = mapFragment.getView().findViewById((int)0x1);
+
+        if (zoomControls != null && zoomControls.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
+            // ZoomControl is inside of RelativeLayout
+            RelativeLayout.LayoutParams params_zoom = (RelativeLayout.LayoutParams) zoomControls.getLayoutParams();
+
+            // Align it to - parent top|left
+            params_zoom.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            params_zoom.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+
+            // Update margins, set to 10dp
+            final int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120,
+                    getResources().getDisplayMetrics());
+            params_zoom.setMargins(0, 0, 0, margin);
+
+        }
+        View navigation_control = mapFragment.getView().findViewById((int)0x2);
+
+        if (navigation_control != null && navigation_control.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
+            // ZoomControl is inside of RelativeLayout
+            RelativeLayout.LayoutParams params_zoom = (RelativeLayout.LayoutParams) navigation_control.getLayoutParams();
+
+            // Align it to - parent top|left
+            params_zoom.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            params_zoom.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+
+            // Update margins, set to 10dp
+            final int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50,
+                    getResources().getDisplayMetrics());
+            params_zoom.setMargins(0,0 , 0,margin);
+
+        }
 
 //        // Add a marker in Sydney and move the camera
 //        LatLng sydney = new LatLng(-34, 151);
@@ -406,8 +446,10 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
     @Override
     public void onLocationChanged(Location location) {
 
+
         if(getApplicationContext()!=null)
         {
+
             if(aSwitch.isChecked() &&  mAuth.getCurrentUser()!=null)
             {
                 if(!customerId.equals(""))
@@ -426,6 +468,11 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
                 String userId = mAuth.getCurrentUser().getUid();
                 DatabaseReference refAvailable = FirebaseDatabase.getInstance().getReference("DriversAvailable");
                 DatabaseReference refWorking = FirebaseDatabase.getInstance().getReference("DriversWorking");
+
+                DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Current_Location");
+                GeoFire geoFire = new GeoFire(ref);
+                geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(location.getLatitude(),location.getLongitude()));
+
                 GeoFire geoFireAvailable = new GeoFire(refAvailable);
                 GeoFire geoFireWorking= new GeoFire(refWorking);
                 switch (customerId)
@@ -450,6 +497,7 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
 
+
                 if(mAuth.getCurrentUser()!= null)
                 {
                     String userId = mAuth.getCurrentUser().getUid();
@@ -463,6 +511,10 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
 
 
         }
+
+
+
+
 
 //        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 //            @Override

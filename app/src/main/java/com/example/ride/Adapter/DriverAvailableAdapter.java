@@ -20,6 +20,7 @@ import com.example.ride.User2;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class DriverAvailableAdapter extends RecyclerView.Adapter<DriverAvailableAdapter.ViewHolder> {
 
@@ -55,6 +56,8 @@ public class DriverAvailableAdapter extends RecyclerView.Adapter<DriverAvailable
         Glide.with(context)
                 .load(profileImgUrl)
                 .into(holder.driverImg);
+        holder.earned.setText("Total earned Amount: "+user.getEarned());
+        holder.unpaid.setText("Unpaid Amount: "+user.getUnpaid());
 
     }
 
@@ -65,7 +68,7 @@ public class DriverAvailableAdapter extends RecyclerView.Adapter<DriverAvailable
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
 
-        TextView name,carType,phone,rating,service,cost;
+        TextView name,carType,phone,rating,service,earned,unpaid;
         ImageView driverImg;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -76,9 +79,16 @@ public class DriverAvailableAdapter extends RecyclerView.Adapter<DriverAvailable
             rating = itemView.findViewById(R.id.ratingId);
             service = itemView.findViewById(R.id.serviceId);
             driverImg = itemView.findViewById(R.id.driverImg);
+            earned = itemView.findViewById(R.id.earnedAmountId);
+            unpaid = itemView.findViewById(R.id.unPaidAmountId);
 
 
         }
+    }
+    public void filterList(ArrayList<DriverAvailable> filterArrayList)
+    {
+        userArrayList = filterArrayList;
+        notifyDataSetChanged();
     }
 
 }

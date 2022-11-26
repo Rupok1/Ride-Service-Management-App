@@ -70,7 +70,7 @@ import java.util.Map;
 
 public class AdminHomeActivity extends AppCompatActivity {
 
-    private Button customerList,customerBtn,driverList,pDriverList,signOutBtn;
+    private Button customerList,customerBtn,driverList,pDriverList,signOutBtn,totalEarn;
     public final int REQUEST_CODE = 100;
     boolean canW,canR;
     private FirebaseAuth fAuth;
@@ -85,6 +85,7 @@ public class AdminHomeActivity extends AppCompatActivity {
         driverList = findViewById(R.id.allDriverList);
         pDriverList = findViewById(R.id.driverAvailableId);
         signOutBtn = findViewById(R.id.sign_outBtnId);
+        totalEarn = findViewById(R.id.earningAmount);
 
         fAuth = FirebaseAuth.getInstance();
 
@@ -163,6 +164,13 @@ public class AdminHomeActivity extends AppCompatActivity {
 //                startActivity(intent);
 //            }
 //        });
+
+        totalEarn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(AdminHomeActivity.this,TotalEarningAmountActivity.class));
+            }
+        });
 
 
 

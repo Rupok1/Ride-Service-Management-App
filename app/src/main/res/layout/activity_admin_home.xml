@@ -35,12 +35,12 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:text="Print Driver List"
-        app:layout_constraintBottom_toTopOf="@+id/sign_outBtnId"
+        app:layout_constraintBottom_toTopOf="@+id/earningAmount"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.471" />
+        app:layout_constraintVertical_bias="0.921" />
 
     <Button
         android:id="@+id/allDriverList"
@@ -65,5 +65,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.957" />
+
+    <Button
+        android:id="@+id/earningAmount"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:text="Amount Info"
+        app:layout_constraintBottom_toTopOf="@+id/sign_outBtnId"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.482"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.648" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
