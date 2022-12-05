@@ -8,12 +8,28 @@
 
     <ImageView
         android:id="@+id/sos_img"
-        android:layout_width="219dp"
-        android:layout_height="231dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="104dp"
+        app:layout_constraintBottom_toTopOf="@+id/sos_by_phone"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.08"
+        app:srcCompat="@drawable/sos" />
+
+    <ImageView
+        android:id="@+id/sos_img_by_email"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="428dp"
+        app:layout_constraintBottom_toTopOf="@+id/textView12"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/sos" />
 
     <Button
@@ -21,16 +37,44 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="#D6D6D6"
+        android:drawableLeft="@drawable/ic_baseline_settings_24"
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
         android:text="Setting"
-        android:drawableLeft="@drawable/ic_baseline_settings_24"
         android:textColor="@color/black"
         app:layout_constraintBottom_toTopOf="@+id/sos_img"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.894"
+        app:layout_constraintHorizontal_bias="0.872"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.129" />
+        app:layout_constraintVertical_bias="0.083" />
+
+    <TextView
+        android:id="@+id/sos_by_phone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="272dp"
+        android:text="SOS BY PHONE"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/sos_img_by_email"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SOS BY EMAIL"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.9" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

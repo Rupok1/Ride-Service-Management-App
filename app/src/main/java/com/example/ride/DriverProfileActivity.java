@@ -21,8 +21,10 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.ride.databinding.ActivityDriverProfileBinding;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -47,8 +49,8 @@ public class DriverProfileActivity extends MainActivity {
     ActivityDriverProfileBinding binding;
     EditText name;
     EditText cartype;
-    TextView mobile;
-    Button save;
+    TextView mobile,verifyMsg;
+    Button save,verifyEmail;
     DatabaseReference databaseReference;
     String userId;
     String cName,ccartype,cMobile,cPhone,profileImgUrl,service;
@@ -70,6 +72,45 @@ public class DriverProfileActivity extends MainActivity {
         save = findViewById(R.id.saveBtn2);
         imageView = findViewById(R.id.driverProfileImage);
         radioGroup = findViewById(R.id.radioGroup);
+
+        verifyEmail = findViewById(R.id.verifyEmailId);
+        verifyMsg = findViewById(R.id.emailNotVerified);
+
+        FirebaseUser fuser = firebaseAuth.getCurrentUser();
+
+        if(!fuser.isEmailVerified())
+        {
+            verifyMsg.setVisibility(View.VISIBLE);
+            verifyEmail.setVisibility(View.VISIBLE);
+
+            verifyEmail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    fuser.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+
+                            Toast.makeText(DriverProfileActivity.this, "Verification mail has been sent!!!", Toast.LENGTH_SHORT).show();
+
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                            Toast.makeText(DriverProfileActivity.this, "Error:"+e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+
+                }
+            });
+        }
+        if(fuser.isEmailVerified())
+        {
+            verifyMsg.setVisibility(View.GONE);
+            verifyEmail.setVisibility(View.GONE);
+        }
 
         userId = firebaseAuth.getCurrentUser().getUid();
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(userId);
@@ -124,6 +165,7 @@ public class DriverProfileActivity extends MainActivity {
         userInfo.put("cartype",cartype.getText().toString());
         userInfo.put("phone",cPhone);
         userInfo.put("service",service);
+        userInfo.put("email",firebaseAuth.getCurrentUser().getEmail());
 
 
         databaseReference.updateChildren(userInfo);

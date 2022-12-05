@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -70,7 +71,8 @@ import java.util.Map;
 
 public class AdminHomeActivity extends AppCompatActivity {
 
-    private Button customerList,customerBtn,driverList,pDriverList,signOutBtn,totalEarn;
+    private LinearLayout customerList,pCustomerList,driverList,pDriverList,amountInfo;
+    private Button signOutBtn;
     public final int REQUEST_CODE = 100;
     boolean canW,canR;
     private FirebaseAuth fAuth;
@@ -80,12 +82,12 @@ public class AdminHomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_home);
 
-        customerList = findViewById(R.id.customerId);
-        customerBtn = findViewById(R.id.customerListId);
-        driverList = findViewById(R.id.allDriverList);
-        pDriverList = findViewById(R.id.driverAvailableId);
-        signOutBtn = findViewById(R.id.sign_outBtnId);
-        totalEarn = findViewById(R.id.earningAmount);
+        customerList = findViewById(R.id.customerListId);
+        pCustomerList = findViewById(R.id.printCustomerList);
+        driverList = findViewById(R.id.driverListId);
+        pDriverList = findViewById(R.id.printDriverList);
+        signOutBtn = findViewById(R.id.signOutId);
+        amountInfo = findViewById(R.id.amountInfoId);
 
         fAuth = FirebaseAuth.getInstance();
 
@@ -100,7 +102,7 @@ public class AdminHomeActivity extends AppCompatActivity {
 
 
 
-        customerList.setOnClickListener(new View.OnClickListener() {
+        pCustomerList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (ContextCompat.checkSelfPermission(getApplicationContext(), READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
@@ -114,6 +116,22 @@ public class AdminHomeActivity extends AppCompatActivity {
                 else {
                     requestAllPermission();
                 }
+            }
+        });
+        customerList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AdminHomeActivity.this,CustomerManageActivity.class);
+                intent.putExtra("user","Customer");
+                startActivity(intent);
+            }
+        });
+        driverList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AdminHomeActivity.this,CustomerManageActivity.class);
+                intent.putExtra("user","Driver");
+                startActivity(intent);
             }
         });
         pDriverList.setOnClickListener(new View.OnClickListener() {
@@ -131,23 +149,9 @@ public class AdminHomeActivity extends AppCompatActivity {
                 }
             }
         });
-        driverList.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(AdminHomeActivity.this,CustomerManageActivity.class);
-                intent.putExtra("user","Driver");
-                startActivity(intent);
-            }
-        });
 
-        customerBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(AdminHomeActivity.this,CustomerManageActivity.class);
-                intent.putExtra("user","Customer");
-                startActivity(intent);
-            }
-        });
+
+
 //        availableDriver.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -165,7 +169,7 @@ public class AdminHomeActivity extends AppCompatActivity {
 //            }
 //        });
 
-        totalEarn.setOnClickListener(new View.OnClickListener() {
+        amountInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(AdminHomeActivity.this,TotalEarningAmountActivity.class));

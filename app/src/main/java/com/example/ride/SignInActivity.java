@@ -186,6 +186,7 @@ public class SignInActivity extends AppCompatActivity {
 
                     }
                     else if (documentSnapshot.getString("type").equals("admin")) {
+                        Toast.makeText(SignInActivity.this,"Hi",Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
                         startActivity(new Intent(SignInActivity.this, AdminHomeActivity.class));
                         finish();

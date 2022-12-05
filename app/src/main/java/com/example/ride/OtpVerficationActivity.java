@@ -11,15 +11,18 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskExecutors;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.firestore.DocumentReference;
@@ -37,6 +40,7 @@ public class OtpVerficationActivity extends AppCompatActivity {
     ProgressBar progressBar;
     String email,pass;
     FirebaseFirestore firestore;
+    private TextView resendCode;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,8 +55,19 @@ public class OtpVerficationActivity extends AppCompatActivity {
         EditText code = findViewById(R.id.code);
         Button confirmBtn = findViewById(R.id.confirmBtn);
         progressBar = findViewById(R.id.progressBar);
+        resendCode = findViewById(R.id.resendCode);
 
         sendVerificationCode(phoneNumber);
+
+        resendCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(OtpVerficationActivity.this, "Resend Code", Toast.LENGTH_SHORT).show();
+                sendVerificationCode(phoneNumber);
+            }
+        });
+
+
 
 
         fAuth = FirebaseAuth.getInstance();
@@ -102,7 +117,26 @@ public class OtpVerficationActivity extends AppCompatActivity {
 
                                     if(task.isSuccessful())
                                     {
+                                        FirebaseUser fuser = fAuth.getCurrentUser();
+
+                                        fuser.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+
+                                                Toast.makeText(OtpVerficationActivity.this, "Verification mail has been sent!!!", Toast.LENGTH_SHORT).show();
+
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+
+                                                Toast.makeText(OtpVerficationActivity.this, "Error:"+e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                                            }
+                                        });
+
                                         String userId = fAuth.getCurrentUser().getEmail();
+
 
                                         DocumentReference documentReference = firestore.collection("users").document(userId);
                                         Map<String,Object> user = new HashMap<>();

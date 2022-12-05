@@ -28,6 +28,16 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 public class PaymentActivity extends AppCompatActivity implements PaymentResultListener {
 
@@ -35,7 +45,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultL
     TextView payText;
     String price;
     String userId,userEmail,userPhone;
-    String rideId;
+    String rideId,driverEmail;
     DatabaseReference historyRideRef;
     int rPrice = 0;
 
@@ -51,13 +61,15 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultL
         btn = findViewById(R.id.button);
 
         price = getIntent().getStringExtra("rPrice");
-        Toast.makeText(PaymentActivity.this,""+price,Toast.LENGTH_SHORT).show();
+
         payText.setText(price+" TK");
 
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         userPhone = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
         rideId = getIntent().getExtras().getString("rideId");
+        driverEmail = getIntent().getExtras().getString("driverEmail");
+        Toast.makeText(PaymentActivity.this,""+driverEmail,Toast.LENGTH_SHORT).show();
         if(rideId != null)
         {
             historyRideRef = FirebaseDatabase.getInstance().getReference().child("History").child(rideId);
@@ -161,11 +173,24 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultL
 //        }
         if(getIntent().getStringExtra("user").equals("Driver")) {
 
+            String email = "rideapp1807000306@gmail.com";
+            String subj = "Payment from Driver";
+            String msg = "Driver Id: "+FirebaseAuth.getInstance().getUid()+"\n Paid Amount: "+rPrice;
+
+            sendEmailToAdmin(email,msg,subj);
+
             startActivity(new Intent(PaymentActivity.this,DriverMapsActivity.class));
             finish();
         }
         else
         {
+
+            String subj = "Payment from Traveller";
+            String msg = "Traveller Id: "+FirebaseAuth.getInstance().getUid()+"\n Paid Amount: "+rPrice+" tk";
+
+
+            sendEmail(driverEmail,msg,subj);
+
             startActivity(new Intent(PaymentActivity.this, CustomerMapActivity.class));
             finish();
         }
@@ -173,6 +198,82 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultL
 
     }
 
+    private void sendEmailToAdmin(String email, String msg, String subj) {
+        String username = "rupokhasan789@gmail.com";
+        String password = "mqrsatvefpojrgmg";
+
+        Properties properties = new Properties();
+        properties.put("mail.smtp.auth","true");
+        properties.put("mail.smtp.starttls.enable","true");
+        properties.put("mail.smtp.host","smtp.gmail.com");
+        properties.put("mail.smtp.port","587");
+
+        Session session = Session.getInstance(properties,
+                new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return  new PasswordAuthentication(username,password);
+                    }
+                });
+
+        Thread gfgThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Message message = new MimeMessage(session);
+                    message.setFrom(new InternetAddress(username));
+                    message.setRecipient(Message.RecipientType.TO,new InternetAddress(email));
+                    message.setSubject(subj);
+                    message.setText(msg);
+                    Transport.send(message);
+                }catch (MessagingException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        gfgThread.start();
+    }
+
+    private void sendEmail(String email, String msg, String subj) {
+
+        String username = "rideapp1807000306@gmail.com";
+        String password = "fyxeyupawzzdggms";
+
+        Properties properties = new Properties();
+        properties.put("mail.smtp.auth","true");
+        properties.put("mail.smtp.starttls.enable","true");
+        properties.put("mail.smtp.host","smtp.gmail.com");
+        properties.put("mail.smtp.port","587");
+
+        Session session = Session.getInstance(properties,
+                new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return  new PasswordAuthentication(username,password);
+                    }
+                });
+
+        Thread gfgThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Message message = new MimeMessage(session);
+                    message.setFrom(new InternetAddress(username));
+                    message.setRecipient(Message.RecipientType.TO,new InternetAddress(email));
+                    message.setSubject(subj);
+                    message.setText(msg);
+                    Transport.send(message);
+                }catch (MessagingException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        gfgThread.start();
+    }
     @Override
     public void onPaymentError(int i, String s)
     {

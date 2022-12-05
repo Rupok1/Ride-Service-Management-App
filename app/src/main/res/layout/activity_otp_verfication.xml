@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".OtpVerficationActivity">
+
     <EditText
         android:id="@+id/code"
         android:layout_width="match_parent"
@@ -13,42 +14,47 @@
         android:layout_marginEnd="24dp"
         android:background="@drawable/editbg"
         android:ems="10"
+        android:hint="Enter verification code"
         android:inputType="phone"
         android:padding="10dp"
-        android:hint="Enter verification code"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintBottom_toTopOf="@+id/resendCode"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.872" />
+        app:layout_constraintVertical_bias="0.628" />
 
     <TextView
-        android:id="@+id/textView"
+
+        android:id="@+id/resendCode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
         android:layout_marginBottom="28dp"
-        android:text="Verify your OTP"
+        android:text="Resend OTP Code"
         android:textSize="14sp"
+        android:padding="5dp"
         app:layout_constraintBottom_toTopOf="@+id/confirmBtn"
         app:layout_constraintEnd_toEndOf="@+id/code"
-        app:layout_constraintHorizontal_bias="0.534"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.507"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.885" />
 
     <Button
         android:id="@+id/confirmBtn"
         android:layout_width="200dp"
         android:layout_height="60dp"
-        android:layout_marginBottom="496dp"
         android:backgroundTint="#321E6B"
         android:text="Confirm"
-        android:textSize="18sp"
         android:textAllCaps="false"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.396" />
 
     <ProgressBar
         android:id="@+id/progressBar"

@@ -7,14 +7,18 @@ import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.provider.ContactsContract;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
@@ -75,6 +79,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -284,6 +298,7 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
     private Boolean driverFound = false;
     private String driverFoundId;
     GeoQuery geoQuery;
+    String email = null,msg,subj;
     private void getClosestDriver() {
 
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("DriversAvailable");
@@ -313,53 +328,71 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
                                 {
                                     driverFound = true;
                                     driverFoundId = snapshot.getKey();
-                                    DatabaseReference dRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundId);
-                                    dRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                            if(snapshot.exists() && snapshot.getChildrenCount()>0)
-                                            {
 
-                                                Dexter.withContext(CustomerMapActivity.this)
-                                                        .withPermission(Manifest.permission.SEND_SMS)
-                                                        .withListener(new PermissionListener() {
-                                                            @Override public void onPermissionGranted(PermissionGrantedResponse response) {/* ... */}
-                                                            @Override public void onPermissionDenied(PermissionDeniedResponse response) {/* ... */}
-                                                            @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
-                                                        }).check();
-
-                                                Map<String, Object>map = (Map<String, Object>) snapshot.getValue();
-
-                                                String no = null,msg;
-
-                                                if(map.get("phone")!=null)
-                                                {
-                                                    no = map.get("phone").toString();
-                                                    no = no.substring(3,14);
-
-                                                }
-                                                msg = "You have customer request from Ride App. Please check";
-                                                try {
-
-                                                        SmsManager smsManager = SmsManager.getDefault();
-                                                        smsManager.sendTextMessage(no,null,msg,null,null);
-                                                        Toast.makeText(CustomerMapActivity.this,"Driver get your request successfully"+no,Toast.LENGTH_SHORT).show();
-
-                                                }catch (Exception e)
-                                                {
-                                                    Toast.makeText(CustomerMapActivity.this,"Error: "+e,Toast.LENGTH_SHORT).show();
-
-                                                }
+                                    Map<String, Object>nmap = (Map<String, Object>) snapshot.getValue();
 
 
-                                            }
-                                        }
 
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError error) {
 
-                                        }
-                                    });
+
+                                    if(nmap.get("email")!=null)
+                                    {
+                                        email = nmap.get("email").toString();
+
+                                    }
+                                    msg = "You have customer request from Ride App. Please check";
+                                    subj = "Got a Customer";
+
+                                    sendEmailToDriver(email,msg,subj);
+
+
+
+
+
+//                                    DatabaseReference dRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundId);
+//                                    dRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//                                        @Override
+//                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                                            Toast.makeText(CustomerMapActivity.this, "Hi-2:"+snapshot, Toast.LENGTH_SHORT).show();
+//                                            if(snapshot.exists() && snapshot.getChildrenCount()>0)
+//                                            {
+//
+//                                                Map<String, Object>map = (Map<String, Object>) snapshot.getValue();
+//
+//                                                String email = null,msg,subj;
+//
+//                                                if(map.get("phone")!=null)
+//                                                {
+//                                                    email = map.get("phone").toString();
+//
+//                                                }
+//                                                Toast.makeText(CustomerMapActivity.this, "Hi: "+email, Toast.LENGTH_SHORT).show();
+//                                                msg = "You have customer request from Ride App. Please check";
+//                                                subj = "Got a Customer notification";
+////                                                try {
+////
+////                                                        SmsManager smsManager = SmsManager.getDefault();
+////                                                        smsManager.sendTextMessage(no,null,msg,null,null);
+////                                                        Toast.makeText(CustomerMapActivity.this,"Driver get your request successfully"+no,Toast.LENGTH_SHORT).show();
+////
+////                                                }catch (Exception e)
+////                                                {
+////                                                    Toast.makeText(CustomerMapActivity.this,"Error: "+e,Toast.LENGTH_SHORT).show();
+////
+////                                                }
+////
+//
+//                                               sendEmail(email,msg,subj);
+//
+//
+//                                            }
+//                                        }
+//
+//                                        @Override
+//                                        public void onCancelled(@NonNull DatabaseError error) {
+//
+//                                        }
+//                                    });
 
 
                                     DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundId).child("customerRequest");
@@ -427,6 +460,45 @@ public class CustomerMapActivity extends MainActivity implements OnMapReadyCallb
 
             }
         });
+    }
+
+    private void sendEmailToDriver(String email, String msg, String subj) {
+
+        String username = "rideapp1807000306@gmail.com";
+        String password = "fyxeyupawzzdggms";
+
+        Properties properties = new Properties();
+        properties.put("mail.smtp.auth","true");
+        properties.put("mail.smtp.starttls.enable","true");
+        properties.put("mail.smtp.host","smtp.gmail.com");
+        properties.put("mail.smtp.port","587");
+
+        Session session = Session.getInstance(properties,
+                new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return  new PasswordAuthentication(username,password);
+                    }
+                });
+
+        Thread gfgThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Message message = new MimeMessage(session);
+                    message.setFrom(new InternetAddress(username));
+                    message.setRecipient(Message.RecipientType.TO,new InternetAddress(email));
+                    message.setSubject(subj);
+                    message.setText(msg);
+                    Transport.send(message);
+                }catch (MessagingException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        gfgThread.start();
     }
 
     private void getDriverInfo() {

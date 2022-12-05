@@ -8,6 +8,31 @@
     android:orientation="vertical"
     >
     <TextView
+        android:visibility="gone"
+        android:id="@+id/emailNotVerified"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins"
+        android:text="Email Not Verified !"
+        android:textColor="#F44336"
+        android:textAlignment="center"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        />
+    <Button
+        android:visibility="gone"
+        android:id="@+id/verifyEmailId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:backgroundTint="#D1D1D1"
+        android:layout_gravity="center"
+        android:text="Verify Now"
+        />
+    <TextView
         android:id="@+id/textView7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -59,6 +59,7 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
     private int ridePrice;
     private Button pay;
     private Boolean customerPaid = false;
+    private String driverEmail;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -210,6 +211,7 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
                     intent.putExtra("rPrice",""+ridePrice);
                     intent.putExtra("user","Customer");
                     intent.putExtra("rideId",rideId);
+                    intent.putExtra("driverEmail",driverEmail);
                     startActivity(intent);
                 }
 
@@ -237,6 +239,10 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
                     if(map.get("phone")!=null)
                     {
                         userPhone.setText("Phone: "+map.get("phone").toString());
+                    }
+                    if(map.get("email")!=null)
+                    {
+                        driverEmail = map.get("email").toString();
                     }
                     if(map.get("profileImageUrl")!=null)
                     {
