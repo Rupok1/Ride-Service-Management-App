@@ -142,6 +142,7 @@ public class DriverProfileActivity extends MainActivity {
                 dialog.setCancelable(false);
                 dialog.show();
                 saveUserInfo();
+
             }
         });
 
@@ -310,7 +311,6 @@ public class DriverProfileActivity extends MainActivity {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
-                    Toast.makeText(DriverProfileActivity.this,documentSnapshot.getString("name"),Toast.LENGTH_SHORT).show();
                     name.setText(documentSnapshot.getString("name"));
                     cartype.setText("Not Updated Yet");
                     mobile.setText("Mobile: "+documentSnapshot.getString("phone"));

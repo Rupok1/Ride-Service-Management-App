@@ -71,7 +71,7 @@ import java.util.Map;
 
 public class AdminHomeActivity extends AppCompatActivity {
 
-    private LinearLayout customerList,pCustomerList,driverList,pDriverList,amountInfo;
+    private LinearLayout customerList,pCustomerList,driverList,pDriverList,amountInfo,pendingPassengerList,pendingDriverList;
     private Button signOutBtn;
     public final int REQUEST_CODE = 100;
     boolean canW,canR;
@@ -88,6 +88,8 @@ public class AdminHomeActivity extends AppCompatActivity {
         pDriverList = findViewById(R.id.printDriverList);
         signOutBtn = findViewById(R.id.signOutId);
         amountInfo = findViewById(R.id.amountInfoId);
+        pendingDriverList = findViewById(R.id.pendingDriverList);
+        pendingPassengerList = findViewById(R.id.passengerPendingList);
 
         fAuth = FirebaseAuth.getInstance();
 
@@ -147,6 +149,28 @@ public class AdminHomeActivity extends AppCompatActivity {
                 else {
                     requestAllPermission();
                 }
+            }
+        });
+
+        pendingPassengerList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(AdminHomeActivity.this,PendingListActivity.class);
+                intent.putExtra("type","Passenger");
+                startActivity(intent);
+                finish();
+
+            }
+        });
+
+        pendingDriverList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AdminHomeActivity.this,PendingListActivity.class);
+                intent.putExtra("type","Driver");
+                startActivity(intent);
+                finish();
             }
         });
 
@@ -321,7 +345,7 @@ public class AdminHomeActivity extends AppCompatActivity {
 
                         User user = dc.getDocument().toObject(User.class);
 
-                        if(user.type.equals("Traveller"))
+                        if(user.type.equals("Passenger"))
                         {
 
                             table.addCell(user.getName());

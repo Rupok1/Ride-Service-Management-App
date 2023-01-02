@@ -1,28 +1,25 @@
 package com.example.ride;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.bumptech.glide.Glide;
-import com.example.ride.databinding.ActivityCustomerMapBinding;
-import com.example.ride.databinding.ActivityCustomerPersonalInfoBinding;
+import com.example.ride.databinding.ActivityDriverProfileBinding;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,40 +36,42 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class CustomerPersonalInfoActivity extends MainActivity {
+public class DriverProfile2Activity extends MainActivity {
 
     FirebaseAuth firebaseAuth;
     FirebaseFirestore fstore;
-    ActivityCustomerPersonalInfoBinding binding;
+    ActivityDriverProfileBinding binding;
     EditText name;
+    EditText cartype;
     TextView mobile,verifyMsg;
     Button save,verifyEmail;
     DatabaseReference databaseReference;
     String userId;
-    String cName,cMobile,cPhone,profileImgUrl;
+    String cName,ccartype,cMobile,cPhone,profileImgUrl,service;
     CircleImageView imageView;
     private Uri resUri;
     Dialog dialog;
+    private RadioGroup radioGroup;
+    Boolean bl = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityCustomerPersonalInfoBinding.inflate(getLayoutInflater());
+        binding = ActivityDriverProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         firebaseAuth = FirebaseAuth.getInstance();
         fstore = FirebaseFirestore.getInstance();
-        name = findViewById(R.id.customerProfileName);
-        mobile = findViewById(R.id.customerMobileNo);
-        save = findViewById(R.id.saveBtn);
-        imageView = findViewById(R.id.customerProfileImage);
+        name = findViewById(R.id.driverProfileName);
+        cartype = findViewById(R.id.cartype);
+        mobile = findViewById(R.id.driverMobileNo);
+        save = findViewById(R.id.saveBtn2);
+        imageView = findViewById(R.id.driverProfileImage);
+        radioGroup = findViewById(R.id.radioGroup);
 
         verifyEmail = findViewById(R.id.verifyEmailId);
         verifyMsg = findViewById(R.id.emailNotVerified);
@@ -81,7 +80,6 @@ public class CustomerPersonalInfoActivity extends MainActivity {
 
         if(!fuser.isEmailVerified())
         {
-
             verifyMsg.setVisibility(View.VISIBLE);
             verifyEmail.setVisibility(View.VISIBLE);
 
@@ -93,14 +91,14 @@ public class CustomerPersonalInfoActivity extends MainActivity {
                         @Override
                         public void onSuccess(Void unused) {
 
-                            Toast.makeText(CustomerPersonalInfoActivity.this, "Verification mail has been sent!!!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DriverProfile2Activity.this, "Verification mail has been sent!!!", Toast.LENGTH_SHORT).show();
 
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
 
-                            Toast.makeText(CustomerPersonalInfoActivity.this, "Error:"+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DriverProfile2Activity.this, "Error:"+e.getMessage(), Toast.LENGTH_SHORT).show();
 
                         }
                     });
@@ -115,14 +113,15 @@ public class CustomerPersonalInfoActivity extends MainActivity {
         }
 
         userId = firebaseAuth.getCurrentUser().getUid();
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child("Customers").child(userId);
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(userId);
 
-      // cPhone = getIntent().getStringExtra("mobile");
+        // cPhone = getIntent().getStringExtra("mobile");
         getUserInfo2();
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                bl = true;
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -133,20 +132,26 @@ public class CustomerPersonalInfoActivity extends MainActivity {
             @Override
             public void onClick(View v) {
 
-
-
-                    dialog = new Dialog(CustomerPersonalInfoActivity.this);
+                if(bl)
+                {
+                    dialog = new Dialog(DriverProfile2Activity.this);
 
                     dialog.setContentView(R.layout.loader);
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    {
                         dialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.loader_dialog));
                     }
-                    dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
                     dialog.setCancelable(false);
                     dialog.show();
                     saveUserInfo();
 
+                }
+                else
+                {
+                    Toast.makeText(DriverProfile2Activity.this, "Please choose an image", Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
@@ -155,10 +160,25 @@ public class CustomerPersonalInfoActivity extends MainActivity {
     }
 
     private void saveUserInfo() {
+
+        int selectedId = radioGroup.getCheckedRadioButtonId();
+
+        RadioButton radioButton = findViewById(selectedId);
+
+        if(radioButton.getText() == null)
+        {
+            return;
+        }
+        service = radioButton.getText().toString();
+
         Map userInfo = new HashMap();
         userInfo.put("name",name.getText().toString());
+        userInfo.put("cartype",cartype.getText().toString());
         userInfo.put("phone",cPhone);
+        userInfo.put("service",service);
         userInfo.put("email",firebaseAuth.getCurrentUser().getEmail());
+
+
         databaseReference.updateChildren(userInfo);
         if(resUri != null)
         {
@@ -173,10 +193,10 @@ public class CustomerPersonalInfoActivity extends MainActivity {
                             Map newImg = new HashMap();
                             newImg.put("profileImageUrl",uri.toString());
                             databaseReference.updateChildren(newImg);
-                            Toast.makeText(CustomerPersonalInfoActivity.this,"Data saved",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DriverProfile2Activity.this,"Data saved",Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
+                            startActivity(new Intent(DriverProfile2Activity.this,HomeActivity.class));
                             finish();
-
                         }
                     });
 
@@ -239,11 +259,34 @@ public class CustomerPersonalInfoActivity extends MainActivity {
                         cName = map.get("name").toString();
                         name.setText(cName);
                     }
+                    if(map.get("cartype")!=null)
+                    {
+                        ccartype = map.get("cartype").toString();
+                        cartype.setText(ccartype);
+                    }
                     if(map.get("phone")!=null)
                     {
                         cMobile = map.get("phone").toString();
                         cPhone = cMobile;
                         mobile.setText("Mobile: "+cMobile);
+                    }
+                    if(map.get("service")!=null)
+                    {
+                        service = map.get("service").toString();
+//                        Toast.makeText(DriverProfileActivity.this,service,Toast.LENGTH_SHORT).show();
+//                        cartype.setText(service);
+                        switch (service)
+                        {
+                            case "RideX":
+                                radioGroup.check(R.id.rideX);
+                                break;
+                            case "RideBlack":
+                                radioGroup.check(R.id.rideBlack);
+                                break;
+                            case "RideXL":
+                                radioGroup.check(R.id.rideXL);
+                                break;
+                        }
                     }
                     if(map.get("profileImageUrl")!=null)
                     {
@@ -279,6 +322,7 @@ public class CustomerPersonalInfoActivity extends MainActivity {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
                     name.setText(documentSnapshot.getString("name"));
+                    cartype.setText("Not Updated Yet");
                     mobile.setText("Mobile: "+documentSnapshot.getString("phone"));
                     cPhone = documentSnapshot.getString("phone");
                 }

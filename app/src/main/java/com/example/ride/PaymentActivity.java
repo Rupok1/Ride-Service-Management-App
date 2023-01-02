@@ -69,15 +69,12 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultL
         userPhone = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
         rideId = getIntent().getExtras().getString("rideId");
         driverEmail = getIntent().getExtras().getString("driverEmail");
-        Toast.makeText(PaymentActivity.this,""+driverEmail,Toast.LENGTH_SHORT).show();
         if(rideId != null)
         {
             historyRideRef = FirebaseDatabase.getInstance().getReference().child("History").child(rideId);
         }
 
         rPrice = Integer.parseInt(price);
-
-        Toast.makeText(PaymentActivity.this,"PRice: "+rPrice,Toast.LENGTH_SHORT).show();
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,7 +105,6 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultL
            // options.put("order_id", "order_DBJOWzybf0sJbb");//from response of step 3.
             options.put("theme.color", "#3399cc");
             options.put("currency", "INR");
-            Toast.makeText(PaymentActivity.this,""+price,Toast.LENGTH_SHORT).show();
             options.put("amount", rPrice*100);//pass amount in currency subunits
             options.put("prefill.email", userEmail);
             options.put("prefill.contact",userPhone);
@@ -175,7 +171,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultL
 
             String email = "rideapp1807000306@gmail.com";
             String subj = "Payment from Driver";
-            String msg = "Driver Id: "+FirebaseAuth.getInstance().getUid()+"\n Paid Amount: "+rPrice;
+            String msg = "Driver Id: "+FirebaseAuth.getInstance().getUid()+"\nDriver Email: "+driverEmail+"\n Paid Amount: "+rPrice+" TK";
 
             sendEmailToAdmin(email,msg,subj);
 
@@ -185,8 +181,8 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultL
         else
         {
 
-            String subj = "Payment from Traveller";
-            String msg = "Traveller Id: "+FirebaseAuth.getInstance().getUid()+"\n Paid Amount: "+rPrice+" tk";
+            String subj = "Payment from Passenger";
+            String msg = "Passenger Id: "+FirebaseAuth.getInstance().getUid()+"\n Paid Amount: "+rPrice+" tk";
 
 
             sendEmail(driverEmail,msg,subj);

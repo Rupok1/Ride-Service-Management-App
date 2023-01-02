@@ -138,7 +138,7 @@ public class CustomerManageActivity extends AppCompatActivity {
             for(CustomerAvailable ds: customerAvailables)
             {
 
-                if(ds.getPhone().contains(newText))
+                if(ds.getPhone().contains(newText)|| ds.getName().toLowerCase().contains(newText.toLowerCase()))
                 {
                     customerList.add(ds);
 
@@ -233,7 +233,7 @@ public class CustomerManageActivity extends AppCompatActivity {
                                             {
                                                 if (ps.child("rideDistance").getValue() !=null) {
                                                     String  distance = ps.child("rideDistance").getValue().toString();
-                                                    int ridePrice = (int)(Double.valueOf(distance) * 34);
+                                                    int ridePrice = (int)(Double.valueOf(distance)/1000)*22;
                                                     p += ridePrice;
 
                                                 }
@@ -242,7 +242,7 @@ public class CustomerManageActivity extends AppCompatActivity {
                                             {
                                                 if (ps.child("rideDistance").getValue() !=null) {
                                                     String  distance = ps.child("rideDistance").getValue().toString();
-                                                    int ridePrice = (int)(Double.valueOf(distance) * 34);
+                                                    int ridePrice = (int)(Double.valueOf(distance)/1000)*22;
                                                     q += ridePrice;
                                                 }
                                             }
@@ -272,9 +272,10 @@ public class CustomerManageActivity extends AppCompatActivity {
                                             }
 
 
-                                            available = new DriverAvailable(ds.child("name").getValue().toString(),ds.child("phone").getValue().toString(),ds.child("cartype").getValue().toString(),String.valueOf(ratingAvg).substring(0,3),ds.child("service").getValue().toString(),ds.child("profileImageUrl").getValue().toString(),""+p,""+q);
 
-                                            Toast.makeText(CustomerManageActivity.this,ds.child("cartype").getValue().toString(),Toast.LENGTH_SHORT).show();
+
+                                            available = new DriverAvailable(ds.child("name").getValue().toString(),ds.child("phone").getValue().toString(),ds.child("cartype").getValue().toString(),String.valueOf(ratingAvg).substring(0,3),ds.child("service").getValue().toString(),ds.child("profileImageUrl").getValue().toString(),String.valueOf(p),String.valueOf(q*.1));
+
                                             driverUnpaidAvailables.add(available);
 
                                             availableAdapter = new DriverAvailableAdapter(CustomerManageActivity.this,driverUnpaidAvailables);
@@ -361,17 +362,15 @@ public class CustomerManageActivity extends AppCompatActivity {
                                                     {
                                                         if (ds.child("rideDistance").getValue() !=null) {
                                                             String  distance = ds.child("rideDistance").getValue().toString();
-                                                            int ridePrice = (int)(Double.valueOf(distance) * 34);
+                                                            int ridePrice = (int)(Double.valueOf(distance)/1000)*22;
                                                             x += ridePrice;
-                                                            Toast.makeText(CustomerManageActivity.this,"hi: "+x,Toast.LENGTH_SHORT).show();
-
                                                         }
                                                     }
                                                     if (ds.child("customerPaid").getValue() != null && ds.child("driverPaidOut").getValue() == null)
                                                     {
                                                         if (ds.child("rideDistance").getValue() !=null) {
                                                             String  distance = ds.child("rideDistance").getValue().toString();
-                                                            int ridePrice = (int)(Double.valueOf(distance) * 34);
+                                                            int ridePrice = (int)(Double.valueOf(distance)/1000)*22;
                                                             y += ridePrice;
                                                         }
                                                     }
@@ -407,9 +406,8 @@ public class CustomerManageActivity extends AppCompatActivity {
                                             }
 
 
-                                            available = new DriverAvailable(ds.child("name").getValue().toString(),ds.child("phone").getValue().toString(),ds.child("cartype").getValue().toString(),String.valueOf(ratingAvg).substring(0,3),ds.child("service").getValue().toString(),ds.child("profileImageUrl").getValue().toString(),""+x,""+y);
+                                            available = new DriverAvailable(ds.child("name").getValue().toString(),ds.child("phone").getValue().toString(),ds.child("cartype").getValue().toString(),String.valueOf(ratingAvg).substring(0,3),ds.child("service").getValue().toString(),ds.child("profileImageUrl").getValue().toString(),""+x,""+(y*.1));
 
-                                            Toast.makeText(CustomerManageActivity.this,ds.child("cartype").getValue().toString(),Toast.LENGTH_SHORT).show();
                                             driverAvailables.add(available);
 
                                             availableAdapter = new DriverAvailableAdapter(CustomerManageActivity.this,driverAvailables);

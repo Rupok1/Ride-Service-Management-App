@@ -27,6 +27,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -40,12 +42,14 @@ public class CreateAccountActivity extends AppCompatActivity {
     Button createBtn;
     TextView signIn;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setTitle("Create Account");
         setContentView(R.layout.activity_create_account);
         Spinner spinner = findViewById(R.id.spinner);
+
 
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -190,7 +194,8 @@ public class CreateAccountActivity extends AppCompatActivity {
                 }
 
 
-                Intent intent = new Intent(CreateAccountActivity.this,OtpVerficationActivity.class);
+
+                Intent intent = new Intent(CreateAccountActivity.this,NidLicenseActivity.class);
                 intent.putExtra("number", "+88"+p_no);
                 intent.putExtra("email", email);
                 intent.putExtra("name", name);

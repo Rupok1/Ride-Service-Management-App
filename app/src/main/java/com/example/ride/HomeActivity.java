@@ -62,7 +62,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (documentSnapshot.exists()) {
 
 
-                    if (documentSnapshot.getString("type").equals("Traveller")) {
+                    if (documentSnapshot.getString("type").equals("Passenger")) {
                         dialog.dismiss();
                         startActivity(new Intent(HomeActivity.this,CustomerMapActivity.class));
                         finish();

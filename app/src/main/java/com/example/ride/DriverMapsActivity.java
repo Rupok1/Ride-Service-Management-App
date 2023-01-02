@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
@@ -78,7 +79,7 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
     private LatLng destinationLatLng;
     private float rideDistance;
     private SupportMapFragment mapFragment;
-
+    private DatabaseReference drf;
 
 
     @Override
@@ -104,17 +105,61 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
         aSwitch = findViewById(R.id.switchID);
         rideStatus = findViewById(R.id.rideStatus);
 
+        CalculateCost(mAuth.getCurrentUser().getUid());
+
+        if(temp*.1>=1000)
+        {
+            aSwitch.setVisibility(View.GONE);
+        }
+        else
+        {
+            aSwitch.setVisibility(View.VISIBLE);
+        }
+
+
+
+
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked)
-                {
-                    connectDriver();
-                }
-                else
-                {
-                    disconnectDriver();
-                }
+
+
+                drf = FirebaseDatabase.getInstance().getReference("VerifyNidLicense");
+                drf.child("Driver").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(snapshot.exists() && snapshot.getChildrenCount()>0)
+                        {
+                            Map<String, Object>map = (Map<String, Object>) snapshot.getValue();
+
+                            if(map.get("verify").equals(true))
+                            {
+                                if(isChecked)
+                                {
+                                    connectDriver();
+                                }
+                                else
+                                {
+                                    disconnectDriver();
+                                }
+                            }
+                            if(map.get("verify").equals(false))
+                            {
+                                Toast.makeText(DriverMapsActivity.this, "Please wait to verify your account\n Your account will be activate in 2 hours!!", Toast.LENGTH_SHORT).show();
+                            }
+
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+
             }
         });
 
@@ -144,6 +189,44 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
 
 
     }
+
+    int ridePrice=0,temp=0;
+    private void CalculateCost(String key) {
+        DatabaseReference historyDatabase2 = FirebaseDatabase.getInstance().getReference().child("History").child(key);
+
+        historyDatabase2.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot ds) {
+
+                if(ds.exists())
+                {
+                    String distance = "";
+                    ridePrice = 0;
+                    if(ds.child("customerPaid").getValue()!= null && ds.child("driverPaidOut").getValue() == null)
+                    {
+                        if (ds.child("rideDistance").getValue() !=null) {
+                            distance = ds.child("rideDistance").getValue().toString();
+                            ridePrice = (int)((Double.valueOf(distance)/1000)*22);
+                            temp += ridePrice;
+
+                        }
+                    }
+
+                    // Toast.makeText(HistoryActivity.this,"HI: "+i,Toast.LENGTH_SHORT).show();
+                }
+
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
 
     private void endRide() {
         rideStatus.setText("Picked Customer");
@@ -649,7 +732,6 @@ public class DriverMapsActivity extends MainActivity implements OnMapReadyCallba
             Polyline polyline = mMap.addPolyline(polyOptions);
             polylines.add(polyline);
 
-            Toast.makeText(getApplicationContext(), "Route " + (i + 1) + ": distance - " + route.get(i).getDistanceValue() + ": duration - " + route.get(i).getDurationValue(), Toast.LENGTH_SHORT).show();
         }
     }
     @Override

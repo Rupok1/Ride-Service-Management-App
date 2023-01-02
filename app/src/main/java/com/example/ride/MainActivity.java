@@ -106,12 +106,10 @@ public class MainActivity extends AppCompatActivity {
                     email.setText(documentSnapshot.getString("email"));
 
 
-                    if(documentSnapshot.getString("type").equals("Traveller"))
+                    if(documentSnapshot.getString("type").equals("Passenger"))
                     {
                         loadImage(image);
 //                       call_a_car.setVisibility(View.VISIBLE);
-
-                        Toast.makeText(MainActivity.this, "Traveller", Toast.LENGTH_SHORT).show();
 
                         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
                             @Override

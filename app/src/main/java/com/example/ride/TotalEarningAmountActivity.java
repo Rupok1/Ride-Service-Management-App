@@ -120,7 +120,7 @@ public class TotalEarningAmountActivity extends AppCompatActivity implements Dat
                         {
                             if (ds.child("rideDistance").getValue() !=null) {
                                 String  distance = ds.child("rideDistance").getValue().toString();
-                                int ridePrice = (int)(Double.valueOf(distance) * 34);
+                                int  ridePrice = (int)((Double.valueOf(distance)/1000)*22);
                                 cPaid += ridePrice;
                             }
                         }
@@ -128,16 +128,16 @@ public class TotalEarningAmountActivity extends AppCompatActivity implements Dat
                         {
                             if (ds.child("rideDistance").getValue() !=null) {
                                 String  distance = ds.child("rideDistance").getValue().toString();
-                                int ridePrice = (int)(Double.valueOf(distance) * 34);
+                                int  ridePrice = (int)((Double.valueOf(distance)/1000)*22);
                                 dPaid += ridePrice;
                             }
                         }
 
                     }
 
-                    customerPaid.setText(""+cPaid);
-                    driverPaid.setText(""+(dPaid * 0.5));
-                    totalAmount.setText(""+((cPaid*.5)-(dPaid * 0.5)));
+                    customerPaid.setText(String.valueOf((int)cPaid));
+                    driverPaid.setText(String.valueOf((int)(dPaid * 0.1)));
+                    totalAmount.setText(String.valueOf((int)(cPaid-dPaid) * 0.1));
                 }
             }
 
@@ -174,7 +174,7 @@ public class TotalEarningAmountActivity extends AppCompatActivity implements Dat
                             {
                                 if (ds.child("rideDistance").getValue() !=null) {
                                     String  distance = ds.child("rideDistance").getValue().toString();
-                                    int ridePrice = (int)(Double.valueOf(distance) * 34);
+                                    int  ridePrice = (int)((Double.valueOf(distance)/1000)*22);
                                     cPaid += ridePrice;
                                 }
                             }
@@ -182,7 +182,7 @@ public class TotalEarningAmountActivity extends AppCompatActivity implements Dat
                             {
                                 if (ds.child("rideDistance").getValue() !=null) {
                                     String  distance = ds.child("rideDistance").getValue().toString();
-                                    int ridePrice = (int)(Double.valueOf(distance) * 34);
+                                    int  ridePrice = (int)((Double.valueOf(distance)/1000)*22);
                                     dPaid += ridePrice;
                                 }
                             }
@@ -191,9 +191,9 @@ public class TotalEarningAmountActivity extends AppCompatActivity implements Dat
 
                     }
 
-                    customerPaid.setText(""+cPaid);
-                    driverPaid.setText(""+(dPaid * 0.5));
-                    totalAmount.setText(""+((cPaid*.5)-(dPaid * 0.5)));
+                    customerPaid.setText(""+(int)cPaid);
+                    driverPaid.setText(""+(int)(dPaid * 0.1));
+                    totalAmount.setText(""+(int)((cPaid*.1)-(dPaid * 0.1)));
                 }
             }
 

@@ -6,6 +6,7 @@ import androidx.arch.core.executor.TaskExecutor;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -25,9 +26,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +47,7 @@ public class OtpVerficationActivity extends AppCompatActivity {
     String email,pass;
     FirebaseFirestore firestore;
     private TextView resendCode;
+    private StorageReference storageReference;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,20 +57,24 @@ public class OtpVerficationActivity extends AppCompatActivity {
         String phoneNumber = getIntent().getStringExtra("number");
         email = getIntent().getStringExtra("email");
         pass = getIntent().getStringExtra("pass");
-
+        storageReference = FirebaseStorage.getInstance().getReference();
 
         EditText code = findViewById(R.id.code);
         Button confirmBtn = findViewById(R.id.confirmBtn);
         progressBar = findViewById(R.id.progressBar);
         resendCode = findViewById(R.id.resendCode);
 
+
         sendVerificationCode(phoneNumber);
 
         resendCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                code.setText("");
                 Toast.makeText(OtpVerficationActivity.this, "Resend Code", Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.GONE);
                 sendVerificationCode(phoneNumber);
+
             }
         });
 
@@ -117,6 +128,7 @@ public class OtpVerficationActivity extends AppCompatActivity {
 
                                     if(task.isSuccessful())
                                     {
+
                                         FirebaseUser fuser = fAuth.getCurrentUser();
 
                                         fuser.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -160,13 +172,99 @@ public class OtpVerficationActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onComplete(@NonNull Task<AuthResult> task) {
 
-                                                     startActivity(new Intent(OtpVerficationActivity.this,HomeActivity.class));
-                                                     finish();
+                                                            byte bb[] = getIntent().getByteArrayExtra("img");
+
+                                                            if(getIntent().getStringExtra("type").equals("Passenger"))
+                                                            {
+                                                                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("VerifyNidLicense").child("Passenger").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+                                                                 StorageReference sr = storageReference.child("NID").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                                                                    sr.putBytes(bb).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                                        @Override
+                                                                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                                                                            sr.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                                                @Override
+                                                                                public void onSuccess(Uri uri) {
+
+                                                                                    Map info = new HashMap();
+                                                                                    info.put("nidImg",uri.toString());
+                                                                                    info.put("verify",false);
+                                                                                    info.put("nid",getIntent().getStringExtra("nid"));
+                                                                                    info.put("dob",getIntent().getStringExtra("dob"));
+                                                                                    databaseReference.updateChildren(info);
+
+                                                                                    Toast.makeText(OtpVerficationActivity.this,"Data Saved & create user",Toast.LENGTH_SHORT).show();
+                                                                                    progressBar.setVisibility(View.GONE);
+                                                                                    startActivity(new Intent(OtpVerficationActivity.this,CustomerPersonalInfo2Activity.class));
+                                                                                    finish();
+                                                                                }
+                                                                            });
+
+
+
+                                                                        }
+                                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                                        @Override
+                                                                        public void onFailure(@NonNull Exception e) {
+                                                                            Toast.makeText(OtpVerficationActivity.this,"Error:"+e.getMessage(),Toast.LENGTH_SHORT).show();
+                                                                        }
+                                                                    });
+
+
+                                                            }
+                                                            if(getIntent().getStringExtra("type").equals("Driver"))
+                                                            {
+                                                                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("VerifyNidLicense").child("Driver").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+                                                               StorageReference sr = storageReference.child("LICENSE").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                                                                sr.putBytes(bb).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                                    @Override
+                                                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                                                                        sr.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                                            @Override
+                                                                            public void onSuccess(Uri uri) {
+
+                                                                                Map info = new HashMap();
+                                                                                info.put("licenseImg",uri.toString());
+                                                                                info.put("verify",false);
+                                                                                info.put("nid",getIntent().getStringExtra("nid"));
+                                                                                info.put("dob",getIntent().getStringExtra("dob"));
+                                                                                databaseReference.updateChildren(info);
+
+                                                                                Toast.makeText(OtpVerficationActivity.this,"Data Saved & create user",Toast.LENGTH_SHORT).show();
+                                                                                progressBar.setVisibility(View.GONE);
+                                                                                startActivity(new Intent(OtpVerficationActivity.this,DriverProfile2Activity.class));
+                                                                                finish();
+
+                                                                            }
+                                                                        });
+
+
+
+                                                                    }
+                                                                }).addOnFailureListener(new OnFailureListener() {
+                                                                    @Override
+                                                                    public void onFailure(@NonNull Exception e) {
+                                                                        Toast.makeText(OtpVerficationActivity.this,"Error:"+e.getMessage(),Toast.LENGTH_SHORT).show();
+                                                                    }
+                                                                });
+
+
+
+
+
+
+
+
+
+
+                                                            }
 
                                                     }
                                                 });
 
-                                                Toast.makeText(OtpVerficationActivity.this, "data saved & user created", Toast.LENGTH_SHORT).show();
                                             }
                                         });
 

@@ -20,6 +20,8 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
+import com.example.ride.databinding.ActivityHistoryBinding;
+import com.example.ride.databinding.ActivityHistorySingleBinding;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -44,8 +46,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class HistorySingleActivity extends AppCompatActivity implements OnMapReadyCallback, RoutingListener {
+public class HistorySingleActivity extends MainActivity implements OnMapReadyCallback, RoutingListener {
 
+    private ActivityHistorySingleBinding binding;
     private GoogleMap mMap;
     private SupportMapFragment mMapFragment;
     private String rideId,userId,customerId,driverId,userOrDriver;
@@ -63,7 +66,9 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_history_single);
+
+        binding = ActivityHistorySingleBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         polylines = new ArrayList<>();
         mMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -108,10 +113,12 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
                         if(child.getKey().equals("rideDistance"))
                         {
                             String p = child.getValue().toString();
-                            ridePrice = (int)(Double.valueOf(p) * 34);
+                            ridePrice = (int)((Double.valueOf(p)/1000)*22);
 
                             rideCost.setText("Cost: "+ridePrice+" tk");
-                            rideDistance.setText("Ride Distance: "+p.substring(0,5)+" m");
+
+
+                            rideDistance.setText("Ride Distance: "+(Double.valueOf(p.substring(0,5))/1000)+" Km");
 
                         }
 
@@ -343,7 +350,6 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
             Polyline polyline = mMap.addPolyline(polyOptions);
             polylines.add(polyline);
 
-            Toast.makeText(getApplicationContext(), "Route " + (i + 1) + ": distance - " + route.get(i).getDistanceValue() + ": duration - " + route.get(i).getDurationValue(), Toast.LENGTH_SHORT).show();
         }
     }
     @Override

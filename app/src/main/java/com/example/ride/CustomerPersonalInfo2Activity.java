@@ -1,27 +1,23 @@
 package com.example.ride;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.bumptech.glide.Glide;
-import com.example.ride.databinding.ActivityCustomerMapBinding;
 import com.example.ride.databinding.ActivityCustomerPersonalInfoBinding;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,15 +35,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class CustomerPersonalInfoActivity extends MainActivity {
+public class CustomerPersonalInfo2Activity extends AppCompatActivity {
 
     FirebaseAuth firebaseAuth;
     FirebaseFirestore fstore;
@@ -61,12 +54,13 @@ public class CustomerPersonalInfoActivity extends MainActivity {
     CircleImageView imageView;
     private Uri resUri;
     Dialog dialog;
+    Boolean bl = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityCustomerPersonalInfoBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        setContentView(R.layout.activity_customer_personal_info2);
+
         firebaseAuth = FirebaseAuth.getInstance();
         fstore = FirebaseFirestore.getInstance();
         name = findViewById(R.id.customerProfileName);
@@ -93,14 +87,14 @@ public class CustomerPersonalInfoActivity extends MainActivity {
                         @Override
                         public void onSuccess(Void unused) {
 
-                            Toast.makeText(CustomerPersonalInfoActivity.this, "Verification mail has been sent!!!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CustomerPersonalInfo2Activity.this, "Verification mail has been sent!!!", Toast.LENGTH_SHORT).show();
 
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
 
-                            Toast.makeText(CustomerPersonalInfoActivity.this, "Error:"+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CustomerPersonalInfo2Activity.this, "Error:"+e.getMessage(), Toast.LENGTH_SHORT).show();
 
                         }
                     });
@@ -123,6 +117,7 @@ public class CustomerPersonalInfoActivity extends MainActivity {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                bl = true;
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -134,8 +129,9 @@ public class CustomerPersonalInfoActivity extends MainActivity {
             public void onClick(View v) {
 
 
-
-                    dialog = new Dialog(CustomerPersonalInfoActivity.this);
+                if (bl)
+                {
+                    dialog = new Dialog(CustomerPersonalInfo2Activity.this);
 
                     dialog.setContentView(R.layout.loader);
 
@@ -147,6 +143,12 @@ public class CustomerPersonalInfoActivity extends MainActivity {
                     dialog.show();
                     saveUserInfo();
 
+
+                }
+                else
+                {
+                    Toast.makeText(CustomerPersonalInfo2Activity.this, "Please choose an image", Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
@@ -173,10 +175,10 @@ public class CustomerPersonalInfoActivity extends MainActivity {
                             Map newImg = new HashMap();
                             newImg.put("profileImageUrl",uri.toString());
                             databaseReference.updateChildren(newImg);
-                            Toast.makeText(CustomerPersonalInfoActivity.this,"Data saved",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CustomerPersonalInfo2Activity.this,"Data saved",Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
+                            startActivity(new Intent(CustomerPersonalInfo2Activity.this,HomeActivity.class));
                             finish();
-
                         }
                     });
 

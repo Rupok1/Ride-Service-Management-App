@@ -40,7 +40,7 @@ public class HistoryActivity extends MainActivity {
     String user,userID;
     FirebaseAuth mAuth;
     private TextView mBalance,avaBalance,alreadyPayId;
-    private int balance = 0,temp =0;
+    private int balance = 0,temp = 0;
     Button adminPay;
     private Boolean flag = false;
     @Override
@@ -76,24 +76,26 @@ public class HistoryActivity extends MainActivity {
             adminPay.setVisibility(View.VISIBLE);
         }
 
-            adminPay.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
 
-                    if((int)(temp/2) <1)
-                    {
-                        Toast.makeText(HistoryActivity.this,"Minimum transaction 1 Tk !!",Toast.LENGTH_SHORT).show();
-                    }
-                    else {
+        adminPay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-                        Intent intent = new Intent(HistoryActivity.this, PaymentActivity.class);
-                        intent.putExtra("rPrice", "" + (int)(temp/2));
-                        intent.putExtra("user", "Driver");
-                        flag = true;
-                        startActivity(intent);
-                    }
+                if((int)(temp*.1) <1)
+                {
+                    Toast.makeText(HistoryActivity.this,"Minimum transaction 1 Tk !!",Toast.LENGTH_SHORT).show();
                 }
-            });
+                else {
+
+                    Intent intent = new Intent(HistoryActivity.this, PaymentActivity.class);
+                    intent.putExtra("rPrice", "" + (int)(temp*.1));
+                    intent.putExtra("user", "Driver");
+                    intent.putExtra("driverEmail", mAuth.getCurrentUser().getEmail());
+                    flag = true;
+                    startActivity(intent);
+                }
+            }
+        });
 
 
 
@@ -107,6 +109,7 @@ public class HistoryActivity extends MainActivity {
     }
 
     private void getUSerHistoryId() {
+
         DatabaseReference userHistoryDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(user).child(userID).child("history");
 
         userHistoryDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -119,6 +122,7 @@ public class HistoryActivity extends MainActivity {
                         FetchRideInfo(history.getKey());
                         if(user.equals("Drivers"))
                         {
+
                             CalculateCost(history.getKey());
                         }
 
@@ -135,6 +139,7 @@ public class HistoryActivity extends MainActivity {
     }
 
     private void CalculateCost(String key) {
+
         DatabaseReference historyDatabase2 = FirebaseDatabase.getInstance().getReference().child("History").child(key);
 
         historyDatabase2.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -151,8 +156,8 @@ public class HistoryActivity extends MainActivity {
                         {
                             if (ds.child("rideDistance").getValue() !=null) {
                                 distance = ds.child("rideDistance").getValue().toString();
-                                Log.i("distance",distance);
-                                ridePrice = (int)(Double.valueOf(distance) * 34);
+                                Toast.makeText(HistoryActivity.this, ""+distance, Toast.LENGTH_SHORT).show();
+                                ridePrice = (int)((Double.valueOf(distance)/1000)*22);
                                 balance += ridePrice;
 
                             }
@@ -163,7 +168,7 @@ public class HistoryActivity extends MainActivity {
                         {
                             if (ds.child("rideDistance").getValue() !=null) {
                                 distance = ds.child("rideDistance").getValue().toString();
-                                ridePrice = (int)(Double.valueOf(distance) * 34);
+                                ridePrice = (int)((Double.valueOf(distance)/1000)*22);
                                 totalAdminPay += ridePrice;
 
                             }
@@ -174,15 +179,16 @@ public class HistoryActivity extends MainActivity {
                     {
                         if (ds.child("rideDistance").getValue() !=null) {
                             distance = ds.child("rideDistance").getValue().toString();
-                            ridePrice = (int)(Double.valueOf(distance) * 34);
+                            ridePrice = (int)((Double.valueOf(distance)/1000)*22);
                             temp += ridePrice;
 
                         }
                     }
+                    Toast.makeText(HistoryActivity.this, "temp: "+temp+"balance: "+balance, Toast.LENGTH_SHORT).show();
 
-                    mBalance.setText("Admin to Pay: "+(int)(temp/2)+" tk");
-                    avaBalance.setText("Earned: "+(balance)+" tk");
-                    alreadyPayId.setText("Paid: "+(int)(totalAdminPay/2)+" tk");
+                    mBalance.setText("Admin to Pay: "+(int)(temp*.1)+" tk");
+                    avaBalance.setText("Earned: "+(int)(balance)+" tk");
+                    alreadyPayId.setText("Paid: "+(int)(totalAdminPay*.1)+" tk");
                     // Toast.makeText(HistoryActivity.this,"HI: "+i,Toast.LENGTH_SHORT).show();
                 }
 
@@ -245,8 +251,8 @@ public class HistoryActivity extends MainActivity {
     }
 
     private ArrayList resultsHistory = new ArrayList<History>();
-    private ArrayList<History> getDataSetHistory() {
 
+    private ArrayList<History> getDataSetHistory() {
 
         return  resultsHistory;
 

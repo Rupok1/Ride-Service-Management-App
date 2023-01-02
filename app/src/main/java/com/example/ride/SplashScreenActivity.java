@@ -174,7 +174,6 @@ public class SplashScreenActivity extends AppCompatActivity {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
             startActivity(new Intent(SplashScreenActivity.this,HomeActivity.class));
-            Toast.makeText(this, "Hi", Toast.LENGTH_SHORT).show();
             finish();
         }
     }

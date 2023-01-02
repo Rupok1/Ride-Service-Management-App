@@ -2,9 +2,19 @@
     <string name="app_name">Ride</string>
     <string-array name="type">
         <item>Driver</item>
-        <item>Traveller</item>
+        <item>Passenger</item>
     </string-array>
     <string name="open">Open</string>
     <string name="close">Close</string>
     <string name="title_activity_driver_maps">DriverMapsActivity</string>
+    <string name="title_activity_nid_or_license_verification">NidOrLicenseVerificationActivity
+    </string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 </resources>
