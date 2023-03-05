@@ -1,5 +1,4 @@
 # Ride-Service-Management-App
-Ride Service Management App
  <img
   src="https://user-images.githubusercontent.com/63110863/210202356-58d3f9cd-d9b5-452f-a047-fbf1e54a062d.png"
   alt="Alt text"
@@ -45,7 +44,7 @@ Ride Service Management App
   alt="Alt text"
   title="Optional title"
   style="position:flex display: inline-block; margin: 0 auto; height:300px; width:200px"> <img
-  src="https://user-images.githubusercontent.com/63110863/210202501-4a573427-b8e9-4270-b386-77237c214972.png"
+  src="https://user-images.githubusercontent.com/63110863/210202501-4a573427-b8e9-4270-b386-77237c214972.jpg"
   alt="Alt text"
   title="Optional title"
   style="position:flex display: inline-block; margin: 0 auto; height:300px; width:200px"> <img
